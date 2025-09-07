@@ -1,0 +1,18 @@
+=== uv sync start Sun Sep  7 09:50:36 AM UTC 2025 ===
+=== uv install end Sun Sep  7 09:50:41 AM UTC 2025 ===
+=== experiment start Sun Sep  7 09:50:41 AM UTC 2025 ===
+[WARN] MeRO Tiny checkpoint missing – oracle fallback engaged – expected at data/models/mero_tiny.pt. Skipping …
+[WARN] FID reference statistics missing – expected at data/models/cifar10_train_stats.npz. Skipping …
+
+Experiment-1 – CIFAR demo (correctness)
+{
+  "experiment": "exp1_cifar",
+  "mse_before": 0.009656535705924034,
+  "mse_after": 0.0,
+  "fid10k": null,
+  "seconds": 17.932734489440918,
+  "mero_ckpt": false
+}
+Figures:
+ .research/iteration60/images/latent_mse_cifar.pdf
+=== experiment end Sun Sep  7 09:51:25 AM UTC 2025 ===
