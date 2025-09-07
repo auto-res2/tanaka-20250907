@@ -2,8 +2,8 @@ from __future__ import annotations
 
 """src/evaluate.py
 Evaluation utilities: FID, plotting, and concrete experiment implementations.
-Updated for iteration **58** research artefact layout (JSON → `.research/iteration58/`,
-figures → `.research/iteration58/images`).
+Updated for iteration **61** research artefact layout (JSON → `.research/iteration61/`,
+figures → `.research/iteration61/images`).
 The experiment no longer (incorrectly) calls the diffusion UNet directly – it now
 creates a lightly noised version of the ground-truth image to act as the
 "low-quality" latent.  This removes the need for timestep arguments while still

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 """src/preprocess.py
 Data downloading and preprocessing utilities.
-Updated to **iteration60** artefact layout (JSON → `.research/iteration60/`,
-figures → `.research/iteration60/images/`).  Additionally, the downloader now
+Updated to **iteration61** artefact layout (JSON → `.research/iteration61/`,
+figures → `.research/iteration61/images/`).  Additionally, the downloader now
 handles both SHA-256 (64-hex) and MD5 (32-hex) checksums so that legacy hashes
 (e.g. the well-known CIFAR-10 MD5) no longer trigger fatal mismatches.
 """
@@ -27,8 +27,8 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Task-mandated research artefact directories (iteration **60**)
-RESEARCH_DIR = ROOT / ".research" / "iteration60"
+# Task-mandated research artefact directories (iteration **61**)
+RESEARCH_DIR = ROOT / ".research" / "iteration61"
 RESULT_DIR = RESEARCH_DIR                  # JSON results
 FIG_DIR = RESEARCH_DIR / "images"          # figures / images
 
