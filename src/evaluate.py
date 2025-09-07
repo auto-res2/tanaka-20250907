@@ -2,8 +2,8 @@ from __future__ import annotations
 
 """src/evaluate.py
 Evaluation utilities: FID, plotting, and concrete experiment implementations.
-Updated for iteration **56** research artefact layout (JSON → `.research/iteration56/`,
-figures → `.research/iteration56/images`).
+Updated for iteration **58** research artefact layout (JSON → `.research/iteration58/`,
+figures → `.research/iteration58/images`).
 The experiment no longer (incorrectly) calls the diffusion UNet directly – it now
 creates a lightly noised version of the ground-truth image to act as the
 "low-quality" latent.  This removes the need for timestep arguments while still
@@ -23,6 +23,7 @@ from cleanfid import fid as cfid
 from PIL import Image
 import torch
 from torch.utils.data import DataLoader
+from diffusers.utils import numpy_to_pil  # light-weight util (avoids full pipeline)
 
 from .train import MeroTiny, from_pretrained_or_mirror, MODEL_DIR
 from .preprocess import TinyCifarDataset, DATA_DIR, CACHE_DIR, RESULT_DIR, FIG_DIR
@@ -82,12 +83,23 @@ MERO_CKPT = MODEL_DIR / "mero_tiny.pt"
 REF_STATS = MODEL_DIR / "cifar10_train_stats.npz"
 
 
+def _tensor_to_pil(img: torch.Tensor) -> Image.Image:
+    """Convert a single image tensor in [-1,1] → PIL.Image"""
+    img = img.detach().cpu()
+    img = (img + 1.0) / 2.0  # scale to [0,1]
+    img = img.clamp(0, 1)
+    np_img = img.permute(1, 2, 0).numpy()  # HWC
+    return numpy_to_pil(np_img)[0]
+
+
 def run_exp1_cifar() -> None:
     """Execute the CIFAR-10 correctness / consistency experiment."""
 
     t0 = time.time()
 
     # --------------------------  load diffusion model  ------------------------
+    # We only need the pipeline for the utility helpers – pass "cpu" dtype to
+    # avoid accidental half-precision issues.
     pipe = from_pretrained_or_mirror(BASE_MODEL, dtype=torch.float32)
 
     # Put pipeline on the relevant device (if possible)
@@ -101,7 +113,7 @@ def run_exp1_cifar() -> None:
     # --------------------------  optional MeRO model  -------------------------
     use_mero = MERO_CKPT.exists()
     if use_mero:
-        mero = MeroTiny()
+        mero = MeroTiny().to(device)
         state = torch.load(MERO_CKPT, map_location="cpu")
         mero.load_state_dict(state, strict=False)
         mero.eval()
@@ -124,17 +136,16 @@ def run_exp1_cifar() -> None:
             lat_teacher = batch  # ground-truth (oracle) reference
 
             if mero is not None:  # path with trained residual predictor
-                pred = mero(lat_low.cpu())
+                pred = mero(lat_low)
             else:  # oracle residual: perfect correction
-                pred = (lat_teacher - lat_low).cpu()
+                pred = (lat_teacher - lat_low)
 
-            mse_before += torch.mean((lat_teacher.cpu() - lat_low.cpu()) ** 2).item() * len(batch)
-            corrected = (lat_low.cpu() + pred).clamp(-1.0, 1.0)
-            mse_after += torch.mean((lat_teacher.cpu() - corrected) ** 2).item() * len(batch)
+            mse_before += torch.mean((lat_teacher - lat_low) ** 2).item() * len(batch)
+            corrected = (lat_low + pred).clamp(-1.0, 1.0)
+            mse_after += torch.mean((lat_teacher - corrected) ** 2).item() * len(batch)
 
-            gen_images.extend([
-                pipe.numpy_to_pil(corrected[i].unsqueeze(0))[0] for i in range(len(batch))
-            ])
+            # Convert each corrected tensor → PIL and collect
+            gen_images.extend([_tensor_to_pil(corrected[i]) for i in range(len(batch))])
 
     mse_before /= len(ds)
     mse_after /= len(ds)

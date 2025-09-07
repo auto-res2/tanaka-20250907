@@ -2,8 +2,8 @@ from __future__ import annotations
 
 """src/preprocess.py
 Data downloading and preprocessing utilities.
-Updated to **iteration57** artefact layout (JSON → `.research/iteration57/`,
-figures → `.research/iteration57/images/`).  Additionally, the downloader now
+Updated to **iteration58** artefact layout (JSON → `.research/iteration58/`,
+figures → `.research/iteration58/images/`).  Additionally, the downloader now
 handles both SHA-256 (64-hex) and MD5 (32-hex) checksums so that legacy hashes
 (e.g. the well-known CIFAR-10 MD5) no longer trigger fatal mismatches.
 """
@@ -27,8 +27,8 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Task-mandated research artefact directories (iteration **57**)
-RESEARCH_DIR = ROOT / ".research" / "iteration57"
+# Task-mandated research artefact directories (iteration **58**)
+RESEARCH_DIR = ROOT / ".research" / "iteration58"
 RESULT_DIR = RESEARCH_DIR                  # JSON files go directly here
 FIG_DIR = RESEARCH_DIR / "images"          # images / figures
 
@@ -148,7 +148,7 @@ class TinyCifarDataset(torch.utils.data.Dataset):
                 T.ToPILImage(),
                 T.Resize(32, interpolation=Image.BILINEAR),
                 T.ToTensor(),
-                T.Normalize(0.5, 0.5),
+                T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]
         )
 
