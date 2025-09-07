@@ -1,0 +1,48 @@
+=== uv sync start Sun Sep  7 07:01:40 AM UTC 2025 ===
+=== uv install end Sun Sep  7 07:01:49 AM UTC 2025 ===
+=== experiment start Sun Sep  7 07:01:49 AM UTC 2025 ===
+
+=== exp1-universal-plugin ===
+Experiment-1 Universal plug-in capability (cross-architecture & fine-tune generalisation)
+[WARN] Could not load 'runwayml/stable-diffusion-v1-4': Cannot load model runwayml/stable-diffusion-v1-4: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+[WARN] Evaluation failed for runwayml/stable-diffusion-v1-4: Expected a 'cpu' device type for generator but found 'cuda'
+[WARN] Could not load 'stabilityai/stable-diffusion-xl-base-0.9': 401 Client Error. (Request ID: Root=1-68bd2df7-75418b6f66ddf9585feee22f;cd902c18-36e7-49b4-b32a-c13d25d358bc)
+
+Cannot access gated repo for url https://huggingface.co/stabilityai/stable-diffusion-xl-base-0.9/resolve/main/model_index.json.
+Access to model stabilityai/stable-diffusion-xl-base-0.9 is restricted. You must have access to it and be authenticated to access it. Please log in.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+[WARN] Evaluation failed for stabilityai/stable-diffusion-xl-base-0.9: Expected a 'cpu' device type for generator but found 'cuda'
+[WARN] Could not load 'DeepFloyd/IF-II-L': Cannot load model DeepFloyd/IF-II-L: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+[WARN] Evaluation failed for DeepFloyd/IF-II-L: Expected a 'cpu' device type for generator but found 'cuda'
+[WARN] Could not load 'mero-experiments/sd1.4-dreambooth-faceA': Cannot load model mero-experiments/sd1.4-dreambooth-faceA: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+[WARN] Evaluation failed for mero-experiments/sd1.4-dreambooth-faceA: Expected a 'cpu' device type for generator but found 'cuda'
+[WARN] Could not load 'lllyasviel/control_v11p_sd15_depth': 404 Client Error. (Request ID: Root=1-68bd2df8-19ee30a23f26b5f11dc8ed0a;4391b837-9b49-4409-b212-3fd2a196e6f4)
+
+Entry Not Found for url: https://huggingface.co/lllyasviel/control_v11p_sd15_depth/resolve/main/model_index.json.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+[WARN] Evaluation failed for lllyasviel/control_v11p_sd15_depth: Expected a 'cpu' device type for generator but found 'cuda'
+[WARN] Could not load 'Lykon/AAM_XL_AnimeMix-lora': Cannot load model Lykon/AAM_XL_AnimeMix-lora: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+[WARN] Evaluation failed for Lykon/AAM_XL_AnimeMix-lora: Expected a 'cpu' device type for generator but found 'cuda'
+
+Result JSON:
+ {
+  "experiment": "exp1-universal-plugin",
+  "fid": {
+    "runwayml/stable-diffusion-v1-4": NaN,
+    "stabilityai/stable-diffusion-xl-base-0.9": NaN,
+    "DeepFloyd/IF-II-L": NaN,
+    "mero-experiments/sd1.4-dreambooth-faceA": NaN,
+    "lllyasviel/control_v11p_sd15_depth": NaN,
+    "Lykon/AAM_XL_AnimeMix-lora": NaN
+  },
+  "figures": [
+    ".research/iteration4/images/exp1-universal-plugin_fid_20250907-070214.pdf"
+  ]
+}
+Figures:
+.research/iteration4/images/exp1-universal-plugin_fid_20250907-070214.pdf
+=== experiment end Sun Sep  7 07:02:19 AM UTC 2025 ===
