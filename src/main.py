@@ -3,12 +3,12 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Paths updated to comply with **iteration-31** mandatory research artefact
-layout (replacing the former iteration-30 paths).
+Updated research artefact paths to comply with **iteration-32** mandatory layout
+(replacing the former iteration-31 paths).
 
 Required changes (see root instructions):
-1.  RESULT_DIR now points to `.research/iteration31/`
-2.  IMAGE_DIR  now points to `.research/iteration31/images/`
+1.  RESULT_DIR now points to `.research/iteration32/`
+2.  IMAGE_DIR  now points to `.research/iteration32/images/`
 All saving / plotting logic targets these directories so the evaluation
 harness can locate the generated JSON files and figures.
 """
@@ -40,9 +40,9 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
 # ---------------------------------------------------------------------------
-#  Mandatory research directory layout (iteration-31) ------------------------
+#  Mandatory research directory layout (iteration-32) ------------------------
 # ---------------------------------------------------------------------------
-RESULT_DIR = ROOT / ".research" / "iteration31"
+RESULT_DIR = ROOT / ".research" / "iteration32"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
