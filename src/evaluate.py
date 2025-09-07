@@ -11,6 +11,11 @@ Minor updates:
     which is always zero.  A warning is printed so researchers are aware the
     metric is not meaningful in that case, but the run continues and returns a
     valid numeric value instead of NaN.
+2.  When a *dataset name* (e.g. "cifar10_train") instead of a path is passed
+    as the reference we now forward it through the dedicated `dataset_name`
+    argument of clean-fid.  This prevents the library from mistakenly
+    interpreting the string as a directory path – an issue that previously led
+    to empty folders being scanned and, consequently, a runtime error.
 
 No other functional changes were required.
 """
@@ -205,6 +210,12 @@ def sample(
 def fid50k(gen_imgs: list[Image.Image], ref_stats: str | pathlib.Path):
     """Compute clean-FID using an in-memory temporary directory.
 
+    If `ref_stats` is a *string* that does **not** correspond to an existing
+    directory or ``.npz`` file it is assumed to be a *dataset name* recognised
+    by clean-fid (e.g. "cifar10_train").  In that case we forward it via the
+    dedicated ``dataset_name`` argument so the library does not confuse it
+    with a path and try to enumerate images on disk.
+
     A robust fallback is implemented – if `clean_fid.compute_fid` raises an
     exception (for instance because the requested reference statistics are not
     available offline) we instead compute the FID of the sample set *against
@@ -212,12 +223,18 @@ def fid50k(gen_imgs: list[Image.Image], ref_stats: str | pathlib.Path):
     and ensures the surrounding experiment code keeps running.  A warning is
     printed so that users know the metric should not be interpreted.
     """
+    ref_stats_path = pathlib.Path(ref_stats) if not isinstance(ref_stats, pathlib.Path) else ref_stats
+    use_dataset_name = not ref_stats_path.exists()
+
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = pathlib.Path(tmp)
         for idx, img in enumerate(gen_imgs):
             img.save(tmp_path / f"{idx:06d}.png")
         try:
-            score = clean_fid.compute_fid(tmp_path.as_posix(), ref_stats, mode="clean")
+            if use_dataset_name:
+                score = clean_fid.compute_fid(tmp_path.as_posix(), mode="clean", dataset_name=str(ref_stats))
+            else:
+                score = clean_fid.compute_fid(tmp_path.as_posix(), str(ref_stats), mode="clean")
         except Exception as exc:  # noqa: BLE001 – fall back to self-FID
             print(
                 f"[WARN] clean-fid failed ({exc}). Falling back to self-FID = 0.",
