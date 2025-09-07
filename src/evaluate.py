@@ -6,7 +6,7 @@ src/evaluate.py
 Sampling wrappers, metric utilities and quick plotting helpers.  These were
 migrated from eval/ and plotting/ in the original script.
 
-Key updates (2025-09-07):
+Key updates (2025-09-07 → 2025-09-08):
 1.  Added an offline-friendly DummyStableDiffusionPipeline that produces small
     random images locally.  If a real model cannot be downloaded (for example
     because the checkpoint is gated / the CI runner has no HF token) we fall
@@ -18,6 +18,12 @@ Key updates (2025-09-07):
     therefore would have crashed at FID computation time.
 3.  Minor robustness tweaks around scheduler replacement so that the code also
     works with the Dummy pipeline which does not expose a scheduler.
+4.  (2025-09-08)  Bug-fix: make sure the random-number generator is created on
+    the **same device** as the underlying diffusion pipeline.  The previous
+    version constructed the generator on CUDA when available which caused an
+    error for CPU-only (dummy/offline) pipelines: "Expected a 'cpu' device type
+    for generator but found 'cuda'".  We now introspect `pipe.device` first and
+    fall back to CUDA only when appropriate.
 """
 
 import contextlib
@@ -111,7 +117,9 @@ class DummyStableDiffusionPipeline:
 @contextlib.contextmanager
 def inference_mode():
     try:
-        cm = torch.cuda.amp.autocast() if torch.cuda.is_available() else contextlib.nullcontext()
+        cm = (
+            torch.cuda.amp.autocast() if torch.cuda.is_available() else contextlib.nullcontext()
+        )
         cm.__enter__()
         yield
     finally:
@@ -163,8 +171,15 @@ def sample(
     except Exception as exc:  # noqa: BLE001 – best-effort only
         print(f"[WARN] Could not configure scheduler ({exc}). Continuing anyway.")
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    g = torch.Generator(device=device).manual_seed(seed)
+    # ------------------------------------------------------------------
+    # Generator must live on *exactly* the same device as the pipeline to
+    # avoid diffusers assertions such as "Expected a 'cpu' device type for
+    # generator but found 'cuda'".
+    # ------------------------------------------------------------------
+    pipe_device = getattr(pipe, "device", torch.device("cpu"))
+    if not isinstance(pipe_device, torch.device):
+        pipe_device = torch.device(pipe_device)
+    generator = torch.Generator(device=pipe_device).manual_seed(seed)
 
     images: list[Image.Image] = []
     with inference_mode():
@@ -173,7 +188,7 @@ def sample(
                 prompt,
                 num_inference_steps=steps,
                 guidance_scale=guidance,
-                generator=g,
+                generator=generator,
                 output_type="latent",
             )
 
@@ -181,8 +196,7 @@ def sample(
             if mero is not None:
                 latents = latents + mero(latents, model_id=0)
 
-            # Convert to a tensor image first, then to PIL so that we always
-            # have a uniform return type irrespective of the backend.
+            # Convert to PIL using the pipeline's decoder when available.
             if hasattr(pipe, "decode_latents"):
                 img_tensor_or_pil = pipe.decode_latents(latents)
                 if isinstance(img_tensor_or_pil, Image.Image):
@@ -190,7 +204,6 @@ def sample(
                 else:
                     pil_img = _tensor_to_pil(img_tensor_or_pil)  # type: ignore[arg-type]
             else:
-                # Dummy safety fallback – should not happen.
                 pil_img = _tensor_to_pil(latents)
 
             images.append(pil_img)

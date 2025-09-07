@@ -3,7 +3,7 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Updated research output paths to comply with iteration4 requirements.
+Updated research output paths to comply with iteration5 requirements.
 """
 
 import datetime
@@ -33,8 +33,8 @@ if not CONFIG_FILE.exists():
 with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
-# Mandatory research directory layout (iteration-4) -------------------------
-RESULT_DIR = ROOT / ".research" / "iteration4"
+# Mandatory research directory layout (iteration-5) -------------------------
+RESULT_DIR = ROOT / ".research" / "iteration5"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
