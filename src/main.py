@@ -3,9 +3,9 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Updated research artefact paths to comply with **iteration-41** mandatory
+Updated research artefact paths to comply with **iteration-42** mandatory
 layout.  All JSON result files are now stored under
-`.research/iteration41/` and figures under `.research/iteration41/images/`.
+`.research/iteration42/` and figures under `.research/iteration42/images/`.
 Only path constants were changed – the rest of the execution flow remains
 identical.
 """
@@ -37,9 +37,9 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
 # ---------------------------------------------------------------------------
-#  Mandatory research directory layout (iteration-41) -----------------------
+#  Mandatory research directory layout (iteration-42) -----------------------
 # ---------------------------------------------------------------------------
-RESULT_DIR = ROOT / ".research" / "iteration41"
+RESULT_DIR = ROOT / ".research" / "iteration42"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
