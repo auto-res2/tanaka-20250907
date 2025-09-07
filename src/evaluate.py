@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import torch
 import tqdm
+import numpy as np  # newly required for ndarray → PIL conversion
 from cleanfid import fid as clean_fid
 from diffusers import (
     DDIMScheduler,
@@ -132,12 +133,33 @@ def build_pipe(model_id: str, dtype: torch.dtype = torch.float16):
         return DummyStableDiffusionPipeline()
 
 
-def _tensor_to_pil(img: torch.Tensor) -> Image.Image:
-    """Utility to convert a single tensor image to PIL."""
-    if img.dim() == 4:
-        img = img[0]
-    img = (img.clamp(-1.0, 1.0) + 1.0) / 2.0  # scale to 0–1
-    return TF.to_pil_image(img.cpu())
+def _to_pil(img: tp.Union[torch.Tensor, np.ndarray, Image.Image]) -> Image.Image:
+    """Robust conversion helper – supports tensors, numpy arrays and PIL."""
+    if isinstance(img, Image.Image):
+        return img
+
+    # torch Tensor
+    if torch.is_tensor(img):
+        if img.dim() == 4:
+            img = img[0]
+        img = (img.clamp(-1.0, 1.0) + 1.0) / 2.0  # scale to 0–1
+        return TF.to_pil_image(img.cpu())
+
+    # numpy array (as returned by diffusers' decode_latents)
+    if isinstance(img, np.ndarray):
+        if img.ndim == 4:
+            img = img[0]
+        # Values expected to be 0–255 uint8 OR 0–1 float – normalise accordingly
+        if img.dtype == np.float32 or img.dtype == np.float64:
+            img = np.clip(img, -1.0, 1.0)
+            img = ((img + 1.0) / 2.0) * 255.0
+            img = img.astype(np.uint8)
+        if img.shape[0] in {1, 3}:
+            # channel-first → channel-last for PIL compatibility
+            img = np.transpose(img, (1, 2, 0))
+        return Image.fromarray(img)
+
+    raise TypeError(f"Unsupported image type: {type(img)}")
 
 
 def sample(
@@ -192,13 +214,10 @@ def sample(
 
             # Convert to PIL using the pipeline's decoder when available.
             if hasattr(pipe, "decode_latents"):
-                img_tensor_or_pil = pipe.decode_latents(latents)
-                if isinstance(img_tensor_or_pil, Image.Image):
-                    pil_img = img_tensor_or_pil
-                else:
-                    pil_img = _tensor_to_pil(img_tensor_or_pil)  # type: ignore[arg-type]
+                decoded = pipe.decode_latents(latents)
+                pil_img = _to_pil(decoded)
             else:
-                pil_img = _tensor_to_pil(latents)
+                pil_img = _to_pil(latents)
 
             images.append(pil_img)
     return images
