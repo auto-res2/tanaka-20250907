@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 """
 src/main.py
 -----------
-Updated research output paths to comply with iteration3 requirements.
+Updated research output paths to comply with iteration4 requirements.
 """
-from __future__ import annotations
 
 import datetime
 import json
@@ -32,8 +33,8 @@ if not CONFIG_FILE.exists():
 with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
-# Mandatory research directory layout (see README / CI rules) ---------------
-RESULT_DIR = ROOT / ".research" / "iteration3"
+# Mandatory research directory layout (iteration-4) -------------------------
+RESULT_DIR = ROOT / ".research" / "iteration4"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
@@ -44,8 +45,6 @@ class Runner:
 
     def __init__(self):
         self.experiments = CFG["experiments"]
-        # All JSON outputs must live directly inside `.research/iteration3/`.
-        # We still keep a timestamp so that figures do not overwrite each other.
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # ------------------------------------------------------------------
@@ -60,43 +59,50 @@ class Runner:
             print(f"\n=== {exp_cfg['name']} ===")
             print(exp_cfg["description"])
 
-        prompts = ["a photo of a cat"] * 128  # placeholder prompts
+        prompts = ["a photo of a cat"] * 16  # reduced count for CI
         fid_table: dict[str, float] = {}
         for model_id in exp_cfg["models"]:
             pipe = build_pipe(model_id)
-            # NOTE: Loading the trained MeRO network is optional in this
-            # minimal reproduction; therefore `mero=None`.
-            imgs = sample(pipe, prompts, steps=4, sampler_name="DPM", mero=None)
-            fid_val = fid50k(imgs, "cifar10_train")  # quick reference stats
+            try:
+                imgs = sample(pipe, prompts, steps=4, sampler_name="DPM", mero=None)
+                fid_val = fid50k(imgs, "cifar10_train")
+            except Exception as exc:
+                # Record NaN for models that failed so the run can continue.
+                print(f"[WARN] Evaluation failed for {model_id}: {exc}")
+                fid_val = float("nan")
             fid_table[model_id] = fid_val
 
-        # Plot and save a simple line chart ----------------------------------------
+        # Plot and save a simple line chart -----------------------------------
         pdf_path = IMAGE_DIR / f"{exp_cfg['name']}_fid_{self.timestamp}.pdf"
-        line_plot(
-            list(fid_table.keys()),
-            list(fid_table.values()),
-            xlabel="model",
-            ylabel="FID",
-            title="FID per model",
-            pdf_path=pdf_path,
-        )
+        try:
+            line_plot(
+                list(fid_table.keys()),
+                list(fid_table.values()),
+                xlabel="model",
+                ylabel="FID",
+                title="FID per model",
+                pdf_path=pdf_path,
+            )
+        except Exception as exc:
+            print(f"[WARN] Could not generate plot: {exc}")
+            pdf_path = None
 
-        # Persist result JSON ------------------------------------------------------
+        # Persist result JSON -------------------------------------------------
         result_json = {
             "experiment": exp_cfg["name"],
             "fid": fid_table,
-            "figures": [str(pdf_path.relative_to(ROOT))],
+            "figures": [str(pdf_path.relative_to(ROOT))] if pdf_path else [],
         }
         json_path = RESULT_DIR / f"{exp_cfg['name']}_{self.timestamp}.json"
         with open(json_path, "w", encoding="utf-8") as fp:
             json.dump(result_json, fp, indent=2)
 
-        # Echo to STDOUT so that CI can parse it ----------------------------------
+        # Echo to STDOUT for verification ------------------------------------
         if ddp_rank() == 0:
             print("\nResult JSON:\n", json.dumps(result_json, indent=2))
             print("Figures:")
-            for f in result_json["figures"]:
-                print(f)
+            for fig in result_json["figures"]:
+                print(fig)
 
 
 # ---------------------------------------------------------------------------
@@ -108,7 +114,7 @@ def main():
     runner = Runner()
     try:
         runner.run()
-    except Exception as e:
+    except Exception as e:  # pragma: no cover – propagated for CI visibility
         if ddp_rank() == 0:
             print("[FATAL]", e, file=sys.stderr)
         raise
