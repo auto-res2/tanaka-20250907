@@ -2,13 +2,10 @@ from __future__ import annotations
 
 """src/preprocess.py
 Data downloading and preprocessing utilities.
-This revision updates the research-artefact locations to **iteration55** as
-required by the task specification:
-    • JSON artefacts → `.research/iteration55/`
-    • Figure / image artefacts → `.research/iteration55/images/`
-The functional logic of the module is unchanged apart from resizing CIFAR-10 to
-32×32 (instead of the previous 64×64) so that it matches the input resolution of
-`google/ddpm-cifar10-32` used in the evaluation script.
+Updated to **iteration56** artefact layout (JSON → `.research/iteration56/`,
+figures → `.research/iteration56/images/`).  Additionally, the downloader now
+handles both SHA-256 (64-hex) and MD5 (32-hex) checksums so that legacy hashes
+(e.g. the well-known CIFAR-10 MD5) no longer trigger fatal mismatches.
 """
 
 import hashlib
@@ -30,9 +27,9 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Task-mandated research artefact directories (iteration **55**)
-RESEARCH_DIR = ROOT / ".research" / "iteration55"
-RESULT_DIR = RESEARCH_DIR                   # JSON files go directly here
+# Task-mandated research artefact directories (iteration **56**)
+RESEARCH_DIR = ROOT / ".research" / "iteration56"
+RESULT_DIR = RESEARCH_DIR                  # JSON files go directly here
 FIG_DIR = RESEARCH_DIR / "images"          # images / figures
 
 # Internal data/cache locations
@@ -46,13 +43,14 @@ for _d in (RAW_DIR, PROC_DIR, CACHE_DIR, RESULT_DIR, FIG_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
 # -----------------------------------------------------------------------------
-# Robust downloader with SHA-256 verification.
+# Robust downloader with checksum verification (MD5 or SHA-256).
 # -----------------------------------------------------------------------------
 
 CHUNK = 1024 * 1024  # 1 MB
 
-def _sha256(path: Path) -> str:
-    h = hashlib.sha256()
+
+def _file_hash(path: Path, algo: str = "sha256") -> str:
+    h = hashlib.new(algo)
     with open(path, "rb") as fp:
         for chunk in iter(lambda: fp.read(8192), b""):
             h.update(chunk)
@@ -60,10 +58,17 @@ def _sha256(path: Path) -> str:
 
 
 def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
-    """Download *url* into DATA/raw/ while enforcing an optional SHA-256 hash."""
+    """Download *url* into DATA/raw/. If *sha256* (or MD5) is supplied, verify it."""
 
     dest = RAW_DIR / Path(url).name
-    if dest.exists() and (sha256 is None or _sha256(dest) == sha256.lower()):
+
+    def _matches(p: Path) -> bool:
+        if sha256 is None or not p.exists():
+            return True
+        algo = "md5" if len(sha256) == 32 else "sha256"
+        return _file_hash(p, algo) == sha256.lower()
+
+    if _matches(dest):
         return dest
 
     tmp = dest.with_suffix(".part")
@@ -81,9 +86,9 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
                     for chunk in r.iter_content(CHUNK):
                         f.write(chunk)
                         bar.update(len(chunk))
-            if sha256 and _sha256(tmp) != sha256.lower():
+            if sha256 and not _matches(tmp):
                 tmp.unlink(missing_ok=True)
-                raise ValueError("SHA-256 mismatch")
+                raise ValueError("checksum mismatch")
             tmp.rename(dest)
             return dest
         except Exception as exc:  # noqa: BLE001
@@ -97,7 +102,7 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
 # -----------------------------------------------------------------------------
 
 CIFAR_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
-CIFAR_SHA = "c58f30108f718f92721af3b95e74349a3ae2ca9df41e1460aebd2df0680e8fa0"
+CIFAR_MD5 = "c58f30108f718f92721af3b95e74349a"  # official MD5 provided by dataset site
 
 
 class TinyCifarDataset(torch.utils.data.Dataset):
@@ -106,7 +111,7 @@ class TinyCifarDataset(torch.utils.data.Dataset):
     def __init__(self):
         import pickle
 
-        tar_path = fetch(CIFAR_URL, sha256=CIFAR_SHA)
+        tar_path = fetch(CIFAR_URL, sha256=CIFAR_MD5)
         work = PROC_DIR / "cifar10"
         batch = work / "cifar-10-batches-py" / "test_batch"
 
