@@ -1,0 +1,188 @@
+Using CPython 3.11.13
+Creating virtual environment at: .venv
+Resolved 133 packages in 1.07s
+Installed 123 packages in 5.26s
+ + absl-py==2.3.1
+ + alembic==1.16.5
+ + annotated-types==0.7.0
+ + anyio==4.10.0
+ + blinker==1.9.0
+ + cachetools==5.5.2
+ + certifi==2025.8.3
+ + cffi==1.17.1
+ + charset-normalizer==3.4.3
+ + clean-fid==0.1.35
+ + click==8.2.1
+ + clip==1.0 (from git+https://github.com/openai/CLIP.git@dcba3cb2e2827b402d2701e7e1c7d9fed8a20ef1)
+ + cloudpickle==3.1.1
+ + contourpy==1.3.3
+ + cryptography==45.0.7
+ + cycler==0.12.1
+ + databricks-sdk==0.65.0
+ + diffusers==0.35.1
+ + docker==7.1.0
+ + fastapi==0.116.1
+ + filelock==3.19.1
+ + flask==3.1.2
+ + fonttools==4.59.2
+ + fsspec==2025.9.0
+ + ftfy==6.3.1
+ + gitdb==4.0.12
+ + gitpython==3.1.45
+ + google-auth==2.40.3
+ + graphene==3.4.3
+ + graphql-core==3.2.6
+ + graphql-relay==3.2.0
+ + greenlet==3.2.4
+ + grpcio==1.74.0
+ + gunicorn==23.0.0
+ + h11==0.16.0
+ + hf-xet==1.1.9
+ + huggingface-hub==0.34.4
+ + idna==3.10
+ + importlib-metadata==8.7.0
+ + itsdangerous==2.2.0
+ + jinja2==3.1.6
+ + joblib==1.5.2
+ + kiwisolver==1.4.9
+ + mako==1.3.10
+ + markdown==3.9
+ + markupsafe==3.0.2
+ + matplotlib==3.10.6
+ + mero==0.1.0 (from file:///home/toma/actions-runner-2/_work/tanaka-20250907/tanaka-20250907)
+ + mlflow==3.3.2
+ + mlflow-skinny==3.3.2
+ + mlflow-tracing==3.3.2
+ + mpmath==1.3.0
+ + networkx==3.5
+ + numpy==2.2.6
+ + nvidia-cublas-cu12==12.8.4.1
+ + nvidia-cuda-cupti-cu12==12.8.90
+ + nvidia-cuda-nvrtc-cu12==12.8.93
+ + nvidia-cuda-runtime-cu12==12.8.90
+ + nvidia-cudnn-cu12==9.10.2.21
+ + nvidia-cufft-cu12==11.3.3.83
+ + nvidia-cufile-cu12==1.13.1.3
+ + nvidia-curand-cu12==10.3.9.90
+ + nvidia-cusolver-cu12==11.7.3.90
+ + nvidia-cusparse-cu12==12.5.8.93
+ + nvidia-cusparselt-cu12==0.7.1
+ + nvidia-nccl-cu12==2.27.3
+ + nvidia-nvjitlink-cu12==12.8.93
+ + nvidia-nvtx-cu12==12.8.90
+ + opencv-python==4.12.0.88
+ + opentelemetry-api==1.36.0
+ + opentelemetry-sdk==1.36.0
+ + opentelemetry-semantic-conventions==0.57b0
+ + packaging==25.0
+ + pandas==2.3.2
+ + pillow==11.3.0
+ + platformdirs==4.4.0
+ + protobuf==6.32.0
+ + pyarrow==21.0.0
+ + pyasn1==0.6.1
+ + pyasn1-modules==0.4.2
+ + pycparser==2.22
+ + pydantic==2.11.7
+ + pydantic-core==2.33.2
+ + pyparsing==3.2.3
+ + python-dateutil==2.9.0.post0
+ + pytz==2025.2
+ + pyyaml==6.0.2
+ + regex==2025.9.1
+ + requests==2.32.5
+ + rsa==4.9.1
+ + safetensors==0.6.2
+ + scikit-learn==1.7.1
+ + scipy==1.16.1
+ + seaborn==0.13.2
+ + sentry-sdk==2.37.0
+ + setuptools==80.9.0
+ + six==1.17.0
+ + smmap==5.0.2
+ + sniffio==1.3.1
+ + sqlalchemy==2.0.43
+ + sqlparse==0.5.3
+ + starlette==0.47.3
+ + sympy==1.14.0
+ + tensorboard==2.20.0
+ + tensorboard-data-server==0.7.2
+ + threadpoolctl==3.6.0
+ + timm==1.0.19
+ + tokenizers==0.22.0
+ + torch==2.8.0
+ + torchvision==0.23.0
+ + tqdm==4.67.1
+ + transformers==4.56.1
+ + triton==3.4.0
+ + typing-extensions==4.15.0
+ + typing-inspection==0.4.1
+ + tzdata==2025.2
+ + urllib3==2.5.0
+ + uvicorn==0.35.0
+ + wandb==0.21.3
+ + wcwidth==0.2.13
+ + werkzeug==3.1.3
+ + xformers==0.0.32.post2
+ + zipp==3.23.0
+Cannot initialize model with low cpu memory usage because `accelerate` was not found in the environment. Defaulting to `low_cpu_mem_usage=False`. It is strongly recommended to install `accelerate` for faster and less memory-intense model loading. You can do so with: 
+```
+pip install accelerate
+```
+.
+Couldn't connect to the Hub: 401 Client Error. (Request ID: Root=1-68bd3897-1877356208b3402c3f0a2f00;e24c2e42-2565-47d5-a153-9f25eebd9573)
+
+Repository Not Found for url: https://huggingface.co/api/models/runwayml/stable-diffusion-v1-4.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password..
+Will try to load from local cache.
+/home/toma/actions-runner-2/_work/tanaka-20250907/tanaka-20250907/src/evaluate.py:115: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  torch.cuda.amp.autocast() if torch.cuda.is_available() else contextlib.nullcontext()
+sampling:   0%|          | 0/16 [00:00<?, ?it/s]                                                Cannot initialize model with low cpu memory usage because `accelerate` was not found in the environment. Defaulting to `low_cpu_mem_usage=False`. It is strongly recommended to install `accelerate` for faster and less memory-intense model loading. You can do so with: 
+```
+pip install accelerate
+```
+.
+sampling:   0%|          | 0/16 [00:00<?, ?it/s]                                                Cannot initialize model with low cpu memory usage because `accelerate` was not found in the environment. Defaulting to `low_cpu_mem_usage=False`. It is strongly recommended to install `accelerate` for faster and less memory-intense model loading. You can do so with: 
+```
+pip install accelerate
+```
+.
+Couldn't connect to the Hub: 401 Client Error. (Request ID: Root=1-68bd389b-04d85da028518a305a16ef03;22464cde-98ea-4cfd-965d-618c2c857602)
+
+Repository Not Found for url: https://huggingface.co/api/models/DeepFloyd/IF-II-L.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password..
+Will try to load from local cache.
+sampling:   0%|          | 0/16 [00:00<?, ?it/s]                                                Cannot initialize model with low cpu memory usage because `accelerate` was not found in the environment. Defaulting to `low_cpu_mem_usage=False`. It is strongly recommended to install `accelerate` for faster and less memory-intense model loading. You can do so with: 
+```
+pip install accelerate
+```
+.
+Couldn't connect to the Hub: 401 Client Error. (Request ID: Root=1-68bd389c-4c3b5fc31e7e6ddb7874e336;999f0d6f-42e7-41d7-be0b-7298140637c7)
+
+Repository Not Found for url: https://huggingface.co/api/models/mero-experiments/sd1.4-dreambooth-faceA.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password..
+Will try to load from local cache.
+sampling:   0%|          | 0/16 [00:00<?, ?it/s]                                                Cannot initialize model with low cpu memory usage because `accelerate` was not found in the environment. Defaulting to `low_cpu_mem_usage=False`. It is strongly recommended to install `accelerate` for faster and less memory-intense model loading. You can do so with: 
+```
+pip install accelerate
+```
+.
+sampling:   0%|          | 0/16 [00:00<?, ?it/s]                                                Cannot initialize model with low cpu memory usage because `accelerate` was not found in the environment. Defaulting to `low_cpu_mem_usage=False`. It is strongly recommended to install `accelerate` for faster and less memory-intense model loading. You can do so with: 
+```
+pip install accelerate
+```
+.
+Couldn't connect to the Hub: 401 Client Error. (Request ID: Root=1-68bd389e-289de78a603a698b46179418;aec1b22d-e9bc-4d77-b24f-2f6e8de2271a)
+
+Repository Not Found for url: https://huggingface.co/api/models/Lykon/AAM_XL_AnimeMix-lora.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password..
+Will try to load from local cache.
+sampling:   0%|          | 0/16 [00:00<?, ?it/s]                                                
