@@ -3,7 +3,11 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Updated research output paths to comply with iteration5 requirements.
+Revised to comply with *iteration-6* directory layout requirements.
+-  All research artefacts (JSON + figures) are now saved under
+   `.research/iteration6/`.
+-  The directory constants RESULT_DIR and IMAGE_DIR were updated accordingly.
+There are no behavioural changes apart from the new file locations.
 """
 
 import datetime
@@ -33,8 +37,8 @@ if not CONFIG_FILE.exists():
 with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
-# Mandatory research directory layout (iteration-5) -------------------------
-RESULT_DIR = ROOT / ".research" / "iteration5"
+# Mandatory research directory layout (iteration-6) -------------------------
+RESULT_DIR = ROOT / ".research" / "iteration6"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
