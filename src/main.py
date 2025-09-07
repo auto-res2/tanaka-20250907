@@ -3,10 +3,10 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Path update for iteration-19 results layout.
+Path update for iteration-20 results layout.  (Previously iteration-19.)
 
 All research artefacts (JSON + figures) must now be stored under
-`.research/iteration19/` (superseding the previous iteration-18 directory).
+`.research/iteration20/` in compliance with the latest project guidelines.
 """
 
 import datetime
@@ -35,8 +35,10 @@ if not CONFIG_FILE.exists():
 with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
-# Mandatory research directory layout (iteration-19) ------------------------
-RESULT_DIR = ROOT / ".research" / "iteration19"
+# ---------------------------------------------------------------------------
+#  Mandatory research directory layout (iteration-20) ------------------------
+# ---------------------------------------------------------------------------
+RESULT_DIR = ROOT / ".research" / "iteration20"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
