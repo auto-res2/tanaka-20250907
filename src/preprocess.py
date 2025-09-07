@@ -2,8 +2,8 @@ from __future__ import annotations
 
 """src/preprocess.py
 Data downloading and preprocessing utilities.
-Updated to **iteration56** artefact layout (JSON → `.research/iteration56/`,
-figures → `.research/iteration56/images/`).  Additionally, the downloader now
+Updated to **iteration57** artefact layout (JSON → `.research/iteration57/`,
+figures → `.research/iteration57/images/`).  Additionally, the downloader now
 handles both SHA-256 (64-hex) and MD5 (32-hex) checksums so that legacy hashes
 (e.g. the well-known CIFAR-10 MD5) no longer trigger fatal mismatches.
 """
@@ -27,8 +27,8 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Task-mandated research artefact directories (iteration **56**)
-RESEARCH_DIR = ROOT / ".research" / "iteration56"
+# Task-mandated research artefact directories (iteration **57**)
+RESEARCH_DIR = ROOT / ".research" / "iteration57"
 RESULT_DIR = RESEARCH_DIR                  # JSON files go directly here
 FIG_DIR = RESEARCH_DIR / "images"          # images / figures
 
@@ -58,16 +58,28 @@ def _file_hash(path: Path, algo: str = "sha256") -> str:
 
 
 def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
-    """Download *url* into DATA/raw/. If *sha256* (or MD5) is supplied, verify it."""
+    """Download *url* into data/raw/. If *sha256* (or MD5) is supplied, verify it.
+
+    The previous implementation prematurely reported success when the target file
+    did **not** exist.  The helper now correctly distinguishes three cases:
+      1. File exists **and** passes checksum → reuse.
+      2. File exists but checksum mismatch / not supplied → re-download.
+      3. File **absent** → download.
+    """
 
     dest = RAW_DIR / Path(url).name
 
     def _matches(p: Path) -> bool:
-        if sha256 is None or not p.exists():
+        # Return True only when file exists **and** (if requested) its checksum
+        # matches the expected value.
+        if not p.exists():
+            return False
+        if sha256 is None:
             return True
         algo = "md5" if len(sha256) == 32 else "sha256"
         return _file_hash(p, algo) == sha256.lower()
 
+    # Fast-path: already downloaded & verified
     if _matches(dest):
         return dest
 
@@ -86,10 +98,13 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
                     for chunk in r.iter_content(CHUNK):
                         f.write(chunk)
                         bar.update(len(chunk))
-            if sha256 and not _matches(tmp):
-                tmp.unlink(missing_ok=True)
-                raise ValueError("checksum mismatch")
-            tmp.rename(dest)
+            # Checksum verification (if provided)
+            if sha256 is not None:
+                algo = "md5" if len(sha256) == 32 else "sha256"
+                if _file_hash(tmp, algo) != sha256.lower():
+                    tmp.unlink(missing_ok=True)
+                    raise ValueError("checksum mismatch")
+            tmp.replace(dest)
             return dest
         except Exception as exc:  # noqa: BLE001
             print(f"[download] attempt {attempt} failed: {exc}")
