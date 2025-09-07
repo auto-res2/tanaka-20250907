@@ -2,10 +2,10 @@ from __future__ import annotations
 
 """src/preprocess.py
 Data downloading and preprocessing utilities.
-This revision changes the default output locations so that
-    • JSON artefacts are written to .research/iteration53/
-    • Figure / image artefacts are written to .research/iteration53/images
-in accordance with the mandatory task instructions.
+This revision updates the research-artefact locations in accordance with the
+current task instructions:
+    • JSON artefacts are written to .research/iteration54/
+    • Figure / image artefacts are written to .research/iteration54/images
 The functional logic of the original file is untouched.
 """
 
@@ -28,10 +28,10 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Task-mandated research artefact directories
-RESEARCH_DIR = ROOT / ".research" / "iteration53"
-RESULT_DIR = RESEARCH_DIR  # JSON files go directly here
-FIG_DIR = RESEARCH_DIR / "images"  # images / figures
+# Task-mandated research artefact directories  (iteration **54**)
+RESEARCH_DIR = ROOT / ".research" / "iteration54"
+RESULT_DIR = RESEARCH_DIR                    # JSON files go directly here
+FIG_DIR = RESEARCH_DIR / "images"           # images / figures
 
 # Internal data/cache locations (unchanged)
 DATA_DIR = ROOT / "data"
