@@ -3,9 +3,9 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Updated to comply with the *iteration-11* directory layout requirements.
+Updated to comply with the *iteration-12* directory layout requirements.
 -  All research artefacts (JSON + figures) are now saved under
-   `.research/iteration11/`.
+   `.research/iteration12/` (replacing the previous iteration-11 path).
 """
 
 import datetime
@@ -34,8 +34,8 @@ if not CONFIG_FILE.exists():
 with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
-# Mandatory research directory layout (iteration-11) ------------------------
-RESULT_DIR = ROOT / ".research" / "iteration11"
+# Mandatory research directory layout (iteration-12) ------------------------
+RESULT_DIR = ROOT / ".research" / "iteration12"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
