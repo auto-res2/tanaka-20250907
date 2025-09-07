@@ -3,28 +3,44 @@ name = "mero"
 version = "0.2.0"
 requires-python = ">=3.10"
 description = "Universal low-step residual corrector – refactored structure"
-authors = [{name = "MeRO-Team", email = "openscience@mero.ai"}]
+authors = [{ name = "MeRO-Team", email = "openscience@mero.ai" }]
+
+# -----------------------------------------------------------------------------
+# Build backend
+# -----------------------------------------------------------------------------
 
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+# -----------------------------------------------------------------------------
+# Package discovery
+# -----------------------------------------------------------------------------
+
 [tool.setuptools]
 packages = ["src"]
 
-[project.dependencies]
-torch = ">=2.2,<2.8"
-diffusers = ">=0.27,<0.36"
-xformers = ">=0.0.24,<0.0.32"
-clean-fid = ">=0.1.35,<0.2"
-ptflops = ">=0.7.1,<0.8"
-accelerate = ">=1.3,<1.11"
-timm = ">=0.9.12,<1.1"
-matplotlib = "*"
-seaborn = "*"
-Pillow = "*"
-requests = "*"
-pyyaml = "*"
-tqdm = "*"
-transformers = ">=4.38"
-scipy = "*"
+# -----------------------------------------------------------------------------
+# Runtime dependencies (PEP 621 – list under `dependencies`)
+# -----------------------------------------------------------------------------
+
+[project.optional-dependencies]  # none for now – placeholder for extras
+
+[project]
+dependencies = [
+  "torch>=2.2,<2.8",
+  "diffusers>=0.27,<0.36",
+  "xformers>=0.0.24,<0.0.32",
+  "clean-fid>=0.1.35,<0.2",
+  "ptflops>=0.7.1,<0.8",
+  "accelerate>=1.3,<1.11",
+  "timm>=0.9.12,<1.1",
+  "matplotlib",
+  "seaborn",
+  "Pillow",
+  "requests",
+  "pyyaml",
+  "tqdm",
+  "transformers>=4.38",
+  "scipy",
+]

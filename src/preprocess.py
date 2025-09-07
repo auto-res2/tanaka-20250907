@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 """src/preprocess.py
 Data downloading and preprocessing utilities.
+This revision changes the default output locations so that
+    • JSON artefacts are written to .research/iteration53/
+    • Figure / image artefacts are written to .research/iteration53/images
+in accordance with the mandatory task instructions.
+The functional logic of the original file is untouched.
 """
-from __future__ import annotations
 
 import hashlib
 import shutil
@@ -21,13 +27,19 @@ import torch
 # -----------------------------------------------------------------------------
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# Task-mandated research artefact directories
+RESEARCH_DIR = ROOT / ".research" / "iteration53"
+RESULT_DIR = RESEARCH_DIR  # JSON files go directly here
+FIG_DIR = RESEARCH_DIR / "images"  # images / figures
+
+# Internal data/cache locations (unchanged)
 DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROC_DIR = DATA_DIR / "proc"
 CACHE_DIR = DATA_DIR / "cache"
-RESULT_DIR = ROOT / "results"
-FIG_DIR = RESULT_DIR / "figures"
 
+# Ensure all required directories exist
 for _d in (RAW_DIR, PROC_DIR, CACHE_DIR, RESULT_DIR, FIG_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
@@ -46,7 +58,7 @@ def _sha256(path: Path) -> str:
 
 
 def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
-    """Download a file into DATA/raw/ while enforcing SHA-256."""
+    """Download *url* into DATA/raw/ while enforcing an optional SHA-256 hash."""
 
     dest = RAW_DIR / Path(url).name
     if dest.exists() and (sha256 is None or _sha256(dest) == sha256.lower()):
@@ -85,8 +97,9 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
 CIFAR_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
 CIFAR_SHA = "c58f30108f718f92721af3b95e74349a3ae2ca9df41e1460aebd2df0680e8fa0"
 
+
 class TinyCifarDataset(torch.utils.data.Dataset):
-    """Lightweight in-memory CIFAR-10 test set resized to 64×64."""
+    """Lightweight in-memory CIFAR-10 *test* set resized to 64×64 pixels."""
 
     def __init__(self):
         import pickle
@@ -95,8 +108,8 @@ class TinyCifarDataset(torch.utils.data.Dataset):
         work = PROC_DIR / "cifar10"
         batch = work / "cifar-10-batches-py" / "test_batch"
 
+        # Extract on first run
         if not batch.exists():
-            # Extraction is required only once.
             with tarfile.open(tar_path) as tf:
                 tf.extractall(work)
 
