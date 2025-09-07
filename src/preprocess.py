@@ -2,8 +2,8 @@ from __future__ import annotations
 
 """src/preprocess.py
 Data downloading and preprocessing utilities.
-Updated to **iteration58** artefact layout (JSON → `.research/iteration58/`,
-figures → `.research/iteration58/images/`).  Additionally, the downloader now
+Updated to **iteration59** artefact layout (JSON → `.research/iteration59/`,
+figures → `.research/iteration59/images/`).  Additionally, the downloader now
 handles both SHA-256 (64-hex) and MD5 (32-hex) checksums so that legacy hashes
 (e.g. the well-known CIFAR-10 MD5) no longer trigger fatal mismatches.
 """
@@ -27,10 +27,10 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Task-mandated research artefact directories (iteration **58**)
-RESEARCH_DIR = ROOT / ".research" / "iteration58"
-RESULT_DIR = RESEARCH_DIR                  # JSON files go directly here
-FIG_DIR = RESEARCH_DIR / "images"          # images / figures
+# Task-mandated research artefact directories (iteration **59**)
+RESEARCH_DIR = ROOT / ".research" / "iteration59"
+RESULT_DIR = RESEARCH_DIR                  # JSON results
+FIG_DIR = RESEARCH_DIR / "images"          # figures / images
 
 # Internal data/cache locations
 DATA_DIR = ROOT / "data"
@@ -60,8 +60,7 @@ def _file_hash(path: Path, algo: str = "sha256") -> str:
 def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
     """Download *url* into data/raw/. If *sha256* (or MD5) is supplied, verify it.
 
-    The previous implementation prematurely reported success when the target file
-    did **not** exist.  The helper now correctly distinguishes three cases:
+    The helper distinguishes three cases:
       1. File exists **and** passes checksum → reuse.
       2. File exists but checksum mismatch / not supplied → re-download.
       3. File **absent** → download.
@@ -70,8 +69,6 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
     dest = RAW_DIR / Path(url).name
 
     def _matches(p: Path) -> bool:
-        # Return True only when file exists **and** (if requested) its checksum
-        # matches the expected value.
         if not p.exists():
             return False
         if sha256 is None:
@@ -79,7 +76,7 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
         algo = "md5" if len(sha256) == 32 else "sha256"
         return _file_hash(p, algo) == sha256.lower()
 
-    # Fast-path: already downloaded & verified
+    # Fast-path
     if _matches(dest):
         return dest
 
@@ -98,7 +95,7 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
                     for chunk in r.iter_content(CHUNK):
                         f.write(chunk)
                         bar.update(len(chunk))
-            # Checksum verification (if provided)
+            # checksum
             if sha256 is not None:
                 algo = "md5" if len(sha256) == 32 else "sha256"
                 if _file_hash(tmp, algo) != sha256.lower():
@@ -117,7 +114,7 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
 # -----------------------------------------------------------------------------
 
 CIFAR_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
-CIFAR_MD5 = "c58f30108f718f92721af3b95e74349a"  # official MD5 provided by dataset site
+CIFAR_MD5 = "c58f30108f718f92721af3b95e74349a"  # official MD5
 
 
 class TinyCifarDataset(torch.utils.data.Dataset):
