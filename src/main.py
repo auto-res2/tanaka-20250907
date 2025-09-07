@@ -1,8 +1,7 @@
 """
 src/main.py
 -----------
-Top-level entry-point (`python -m src.main`) that orchestrates the minimal
-Experiment-1 reproduction.
+Updated research output paths to comply with iteration3 requirements.
 """
 from __future__ import annotations
 
@@ -34,7 +33,7 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
 # Mandatory research directory layout (see README / CI rules) ---------------
-RESULT_DIR = ROOT / ".research" / "iteration2"
+RESULT_DIR = ROOT / ".research" / "iteration3"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
@@ -45,7 +44,7 @@ class Runner:
 
     def __init__(self):
         self.experiments = CFG["experiments"]
-        # All JSON outputs must live directly inside `.research/iteration2/`.
+        # All JSON outputs must live directly inside `.research/iteration3/`.
         # We still keep a timestamp so that figures do not overwrite each other.
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 

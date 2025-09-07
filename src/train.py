@@ -1,9 +1,7 @@
 """
 src/train.py
 --------------
-Holds everything required for model definition, distributed helpers and the
-training loop.  Other modules must ONLY import from here when they need those
-utilities in order to respect the strict-file constraint.
+Fixed mutable-default issues for dataclass fields (optim, loss).
 """
 from __future__ import annotations
 
@@ -131,8 +129,9 @@ class TrainCfg:
     save_every: int = 5_000
     eval_every: int = 2_000
     seeds: list[int] = dataclasses.field(default_factory=lambda: [11, 22, 33, 44, 55])
-    optim: OptimCfg = OptimCfg()
-    loss: LossCfg = LossCfg()
+    # Use default_factory to avoid mutable default pitfalls ----------------
+    optim: OptimCfg = dataclasses.field(default_factory=OptimCfg)
+    loss: LossCfg = dataclasses.field(default_factory=LossCfg)
 
 # ---------------------------------------------------------------------------
 #  Trainer – FSDP/AMP aware but also runs perfectly fine on single-GPU.
