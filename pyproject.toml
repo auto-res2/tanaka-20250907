@@ -27,7 +27,7 @@ dependencies = [
     "Pillow",
     "torchvision",  # added for tensor → PIL conversions
     "transformers>=4.37",
-    "clip @ git+https://github.com/openai/CLIP.git",
+    # Removed Git dependency on OpenAI CLIP to avoid network installs during CI
 ]
 
 [build-system]
