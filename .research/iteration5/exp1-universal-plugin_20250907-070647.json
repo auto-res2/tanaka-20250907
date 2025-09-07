@@ -1,0 +1,14 @@
+{
+  "experiment": "exp1-universal-plugin",
+  "fid": {
+    "runwayml/stable-diffusion-v1-4": NaN,
+    "stabilityai/stable-diffusion-xl-base-0.9": NaN,
+    "DeepFloyd/IF-II-L": NaN,
+    "mero-experiments/sd1.4-dreambooth-faceA": NaN,
+    "lllyasviel/control_v11p_sd15_depth": NaN,
+    "Lykon/AAM_XL_AnimeMix-lora": NaN
+  },
+  "figures": [
+    ".research/iteration5/images/exp1-universal-plugin_fid_20250907-070647.pdf"
+  ]
+}

@@ -1,0 +1,66 @@
+=== uv sync start Sun Sep  7 07:05:01 AM UTC 2025 ===
+=== uv install end Sun Sep  7 07:06:21 AM UTC 2025 ===
+=== experiment start Sun Sep  7 07:06:21 AM UTC 2025 ===
+
+=== exp1-universal-plugin ===
+Experiment-1 Universal plug-in capability (cross-architecture & fine-tune generalisation)
+[WARN] Could not load 'runwayml/stable-diffusion-v1-4': Cannot load model runwayml/stable-diffusion-v1-4: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID between two folders
+Found 16 images in the folder /tmp/tmpizial_yr
+Found 0 images in the folder cifar10_train
+[WARN] Evaluation failed for runwayml/stable-diffusion-v1-4: need at least one array to concatenate
+[WARN] Could not load 'stabilityai/stable-diffusion-xl-base-0.9': 401 Client Error. (Request ID: Root=1-68bd2f17-0893f1a81008de9d10073715;729dc3b1-85dd-4648-a02f-9488cca6c62b)
+
+Cannot access gated repo for url https://huggingface.co/stabilityai/stable-diffusion-xl-base-0.9/resolve/main/model_index.json.
+Access to model stabilityai/stable-diffusion-xl-base-0.9 is restricted. You must have access to it and be authenticated to access it. Please log in.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID between two folders
+Found 16 images in the folder /tmp/tmp3o62241h
+Found 0 images in the folder cifar10_train
+[WARN] Evaluation failed for stabilityai/stable-diffusion-xl-base-0.9: need at least one array to concatenate
+[WARN] Could not load 'DeepFloyd/IF-II-L': Cannot load model DeepFloyd/IF-II-L: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID between two folders
+Found 16 images in the folder /tmp/tmp67hds6dn
+Found 0 images in the folder cifar10_train
+[WARN] Evaluation failed for DeepFloyd/IF-II-L: need at least one array to concatenate
+[WARN] Could not load 'mero-experiments/sd1.4-dreambooth-faceA': Cannot load model mero-experiments/sd1.4-dreambooth-faceA: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID between two folders
+Found 16 images in the folder /tmp/tmpg6zu40kc
+Found 0 images in the folder cifar10_train
+[WARN] Evaluation failed for mero-experiments/sd1.4-dreambooth-faceA: need at least one array to concatenate
+[WARN] Could not load 'lllyasviel/control_v11p_sd15_depth': 404 Client Error. (Request ID: Root=1-68bd2f1d-5d47dd9e73b39e316080c3e4;736df7c9-9753-475a-836a-e106652fd6e0)
+
+Entry Not Found for url: https://huggingface.co/lllyasviel/control_v11p_sd15_depth/resolve/main/model_index.json.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID between two folders
+Found 16 images in the folder /tmp/tmpb8sc8n07
+Found 0 images in the folder cifar10_train
+[WARN] Evaluation failed for lllyasviel/control_v11p_sd15_depth: need at least one array to concatenate
+[WARN] Could not load 'Lykon/AAM_XL_AnimeMix-lora': Cannot load model Lykon/AAM_XL_AnimeMix-lora: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID between two folders
+Found 16 images in the folder /tmp/tmpsfus269d
+Found 0 images in the folder cifar10_train
+[WARN] Evaluation failed for Lykon/AAM_XL_AnimeMix-lora: need at least one array to concatenate
+
+Result JSON:
+ {
+  "experiment": "exp1-universal-plugin",
+  "fid": {
+    "runwayml/stable-diffusion-v1-4": NaN,
+    "stabilityai/stable-diffusion-xl-base-0.9": NaN,
+    "DeepFloyd/IF-II-L": NaN,
+    "mero-experiments/sd1.4-dreambooth-faceA": NaN,
+    "lllyasviel/control_v11p_sd15_depth": NaN,
+    "Lykon/AAM_XL_AnimeMix-lora": NaN
+  },
+  "figures": [
+    ".research/iteration5/images/exp1-universal-plugin_fid_20250907-070647.pdf"
+  ]
+}
+Figures:
+.research/iteration5/images/exp1-universal-plugin_fid_20250907-070647.pdf
+=== experiment end Sun Sep  7 07:07:19 AM UTC 2025 ===
