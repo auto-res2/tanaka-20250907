@@ -6,8 +6,7 @@ requires-python = ">=3.10"
 authors = [{ name = "Research Team", email = "research@example.com" }]
 
 # ---------------------------------------------------------------------------
-#  Runtime dependencies.  Versions follow the ones stated in the header of
-#  the original experimental script.
+#  Runtime dependencies.  All entries must follow valid PEP-508 syntax.
 # ---------------------------------------------------------------------------
 
 dependencies = [
@@ -27,9 +26,9 @@ dependencies = [
     "opencv-python",
     "Pillow",
     "transformers>=4.37",
-    # OpenAI CLIP is installed directly from GitHub until a PyPI release is
-    # provided.  This avoids circular dependencies with diffusers/transformers.
-    "git+https://github.com/openai/CLIP.git#egg=clip",
+    # Optional – OpenAI CLIP for perceptual metrics / text encoders.
+    # NOTE: PEP-508 requires the form "name @ URL" for direct-URL installs.
+    "clip @ git+https://github.com/openai/CLIP.git",
 ]
 
 [build-system]
