@@ -3,11 +3,9 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Updated to comply with *iteration-9* directory layout requirements.
+Path update to comply with *iteration-10* directory layout requirements.
 -  All research artefacts (JSON + figures) are now saved under
-   `.research/iteration9/`.
--  The directory constants RESULT_DIR and IMAGE_DIR were updated accordingly.
-There are no behavioural changes apart from the new file locations.
+   `.research/iteration10/` as mandated by the latest specification.
 """
 
 import datetime
@@ -36,8 +34,8 @@ if not CONFIG_FILE.exists():
 with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
-# Mandatory research directory layout (iteration-9) -------------------------
-RESULT_DIR = ROOT / ".research" / "iteration9"
+# Mandatory research directory layout (iteration-10) ------------------------
+RESULT_DIR = ROOT / ".research" / "iteration10"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
