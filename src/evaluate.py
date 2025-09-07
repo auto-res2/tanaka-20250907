@@ -1,296 +1,155 @@
+"""src/evaluate.py
+Evaluation utilities: FID, plotting, and concrete experiment implementations.
+"""
 from __future__ import annotations
 
-"""
-src/evaluate.py
-----------------
-Minor updates:
-1.  fid50k now includes a robust fallback so experiments never crash when the
-    reference statistics are unavailable (e.g. offline CI).  We first try to
-    call `clean_fid.compute_fid` exactly as before.  If that fails for *any*
-    reason we gracefully fall-back to a "self-FID" (generated vs. generated)
-    which is always zero.  A warning is printed so researchers are aware the
-    metric is not meaningful in that case, but the run continues and returns a
-    valid numeric value instead of NaN.
-2.  When a *dataset name* (e.g. "cifar10_train") instead of a path is passed
-    as the reference we now forward it through the dedicated `dataset_name`
-    argument of clean-fid.  This prevents the library from mistakenly
-    interpreting the string as a directory path – an issue that previously led
-    to empty folders being scanned and, consequently, a runtime error.
-
-No other functional changes were required.
-"""
-
-import contextlib
-import os
-import pathlib
+import json
+import sys
 import tempfile
-import typing as tp
-from types import SimpleNamespace
+import time
+from pathlib import Path
+from typing import List, Sequence
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-import torch
-import tqdm
-import numpy as np  # newly required for ndarray → PIL conversion
-from cleanfid import fid as clean_fid
-from diffusers import (
-    DDIMScheduler,
-    DPMSolverMultistepScheduler,
-    StableDiffusionPipeline,
-)
+from cleanfid import fid as cfid
 from PIL import Image
-import torchvision.transforms.functional as TF
+import torch
+from torch.utils.data import DataLoader
 
-from .train import MeroCorrector
+from .train import MeroTiny, from_pretrained_or_mirror, MODEL_DIR
+from .preprocess import TinyCifarDataset, DATA_DIR, CACHE_DIR, RESULT_DIR, FIG_DIR
 
-# ---------------------------------------------------------------------------
-#  ─── S A M P L I N G ──────────────────────────────────────────────────────
-# ---------------------------------------------------------------------------
-
-SAMPLER_REGISTRY = {
-    "DPM": DPMSolverMultistepScheduler,
-    "DDIM": DDIMScheduler,
-}
+# -----------------------------------------------------------------------------
+# Metric helpers
+# -----------------------------------------------------------------------------
 
 
-class DummyStableDiffusionPipeline:
-    """Very small stand-in that mimics the public API used in this project.
-
-    It generates random latent tensors and decodes them into 64×64 RGB images.
-    The purpose is *solely* to let CI / unit-tests run without heavyweight
-    checkpoints.  A loud warning is printed when this fallback is activated so
-    that researchers realise they are **not** using a real model.
-    """
-
-    def __init__(self):
-        print(
-            "[WARN] Using DummyStableDiffusionPipeline – no real model weights "
-            "were loaded.  Results are *NOT* meaningful.",
-            flush=True,
-        )
-        self.device = torch.device("cpu")
-        self.scheduler = None  # placeholder so that attribute exists
-
-    # ---------------------------------------------------------------------
-    # Public API expected by sample()
-    # ---------------------------------------------------------------------
-    def to(self, device):  # noqa: D401 (keep signature identical)
-        self.device = torch.device(device)
-        return self
-
-    def enable_attention_slicing(self):
-        # No-op for the dummy implementation.
-        pass
-
-    def __call__(
-        self,
-        prompt: str,
-        *,
-        num_inference_steps: int,
-        guidance_scale: float,
-        generator: torch.Generator,
-        output_type: str = "latent",
-    ) -> SimpleNamespace:  # diffusers returns a struct-like object
-        # We completely ignore the textual prompt – this is *only* a stub.
-        latent = torch.randn(1, 3, 8, 8, generator=generator, device=self.device)
-        return SimpleNamespace(images=latent)
-
-    # ------------------------------------------------------------------
-    def decode_latents(self, latents: torch.Tensor) -> Image.Image:
-        """Turn a (1,3,H,W) tensor in –1…1 range into a PIL image."""
-        if latents.dim() == 4:
-            latents = latents[0]
-        img = (latents.clamp(-1.0, 1.0) + 1.0) / 2.0  # → 0…1
-        img = TF.to_pil_image(img.cpu())
-        return img
+def _assert_path(path: Path, msg: str) -> None:
+    if not path.exists():
+        print(f"[FATAL] {msg} – expected at {path.relative_to(Path.cwd())}")
+        sys.exit(1)
 
 
-# ---------------------------------------------------------------------------
-#  Helper context-manager to silence AMP autocast when CUDA is unavailable.
-# ---------------------------------------------------------------------------
+def compute_fid(images: List[Image.Image], ref_npz: Path) -> float:
+    """Compute Clean-FID given a list of PIL images and reference statistics."""
 
-@contextlib.contextmanager
-def inference_mode():
-    try:
-        cm = (
-            torch.cuda.amp.autocast() if torch.cuda.is_available() else contextlib.nullcontext()
-        )
-        cm.__enter__()
-        yield
-    finally:
-        cm.__exit__(None, None, None)
+    _assert_path(ref_npz, "Reference statistics not available")
 
-
-def build_pipe(model_id: str, dtype: torch.dtype = torch.float16):
-    """Load a Stable Diffusion pipeline – with an offline fallback."""
-    try:
-        pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=dtype)
-        pipe = pipe.to("cuda" if torch.cuda.is_available() else "cpu")
-        pipe.enable_attention_slicing()
-        return pipe
-    except Exception as err:  # noqa: BLE001 – *any* failure triggers fallback
-        print(f"[WARN] Could not load '{model_id}': {err}. Falling back to Dummy pipeline.")
-        return DummyStableDiffusionPipeline()
-
-
-def _to_pil(img: tp.Union[torch.Tensor, np.ndarray, Image.Image]) -> Image.Image:
-    """Robust conversion helper – supports tensors, numpy arrays and PIL."""
-    if isinstance(img, Image.Image):
-        return img
-
-    # torch Tensor
-    if torch.is_tensor(img):
-        if img.dim() == 4:
-            img = img[0]
-        img = (img.clamp(-1.0, 1.0) + 1.0) / 2.0  # scale to 0–1
-        return TF.to_pil_image(img.cpu())
-
-    # numpy array (as returned by diffusers' decode_latents)
-    if isinstance(img, np.ndarray):
-        if img.ndim == 4:
-            img = img[0]
-        # Values expected to be 0–255 uint8 OR 0–1 float – normalise accordingly
-        if img.dtype == np.float32 or img.dtype == np.float64:
-            img = np.clip(img, -1.0, 1.0)
-            img = ((img + 1.0) / 2.0) * 255.0
-            img = img.astype(np.uint8)
-        if img.shape[0] in {1, 3}:
-            # channel-first → channel-last for PIL compatibility
-            img = np.transpose(img, (1, 2, 0))
-        return Image.fromarray(img)
-
-    raise TypeError(f"Unsupported image type: {type(img)}")
-
-
-def sample(
-    pipe,
-    prompts: list[str],
-    *,
-    steps: int = 4,
-    sampler_name: str = "DPM",
-    mero: MeroCorrector | None = None,
-    guidance: float = 7.5,
-    seed: int = 0,
-) -> list[Image.Image]:
-    """Return a list of PIL images – one for each prompt."""
-
-    if sampler_name not in SAMPLER_REGISTRY:
-        raise ValueError(f"Unknown sampler {sampler_name}")
-
-    # Replace scheduler if the pipeline actually exposes one (the dummy does
-    # *not*).  This block is wrapped in try/except so unit-tests never fail
-    # just because a certain scheduler is missing.
-    try:
-        if hasattr(pipe, "scheduler") and pipe.scheduler is not None:
-            scheduler_cls = SAMPLER_REGISTRY[sampler_name]
-            pipe.scheduler = scheduler_cls.from_config(pipe.scheduler.config)
-    except Exception as exc:  # noqa: BLE001 – best-effort only
-        print(f"[WARN] Could not configure scheduler ({exc}). Continuing anyway.")
-
-    # ------------------------------------------------------------------
-    # Generator must live on *exactly* the same device as the pipeline to
-    # avoid diffusers assertions such as "Expected a 'cpu' device type for
-    # generator but found 'cuda'".
-    # ------------------------------------------------------------------
-    pipe_device = getattr(pipe, "device", torch.device("cpu"))
-    if not isinstance(pipe_device, torch.device):
-        pipe_device = torch.device(pipe_device)
-    generator = torch.Generator(device=pipe_device).manual_seed(seed)
-
-    images: list[Image.Image] = []
-    with inference_mode():
-        for prompt in tqdm.tqdm(prompts, desc="sampling", leave=False):
-            out = pipe(
-                prompt,
-                num_inference_steps=steps,
-                guidance_scale=guidance,
-                generator=generator,
-                output_type="latent",
-            )
-
-            latents = out.images  # latent representation (dummy or real)
-            if mero is not None:
-                latents = latents + mero(latents, model_id=0)
-
-            # Convert to PIL using the pipeline's decoder when available.
-            if hasattr(pipe, "decode_latents"):
-                decoded = pipe.decode_latents(latents)
-                pil_img = _to_pil(decoded)
-            else:
-                pil_img = _to_pil(latents)
-
-            images.append(pil_img)
-    return images
-
-# ---------------------------------------------------------------------------
-#  ─── M E T R I C S ────────────────────────────────────────────────────────
-# ---------------------------------------------------------------------------
-
-def fid50k(gen_imgs: list[Image.Image], ref_stats: str | pathlib.Path):
-    """Compute clean-FID using an in-memory temporary directory.
-
-    If `ref_stats` is a *string* that does **not** correspond to an existing
-    directory or ``.npz`` file it is assumed to be a *dataset name* recognised
-    by clean-fid (e.g. "cifar10_train").  In that case we forward it via the
-    dedicated ``dataset_name`` argument so the library does not confuse it
-    with a path and try to enumerate images on disk.
-
-    A robust fallback is implemented – if `clean_fid.compute_fid` raises an
-    exception (for instance because the requested reference statistics are not
-    available offline) we instead compute the FID of the sample set *against
-    itself*.  This yields a score of exactly 0.0 which is numerically valid
-    and ensures the surrounding experiment code keeps running.  A warning is
-    printed so that users know the metric should not be interpreted.
-    """
-    ref_stats_path = pathlib.Path(ref_stats) if not isinstance(ref_stats, pathlib.Path) else ref_stats
-    use_dataset_name = not ref_stats_path.exists()
-
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp_path = pathlib.Path(tmp)
-        for idx, img in enumerate(gen_imgs):
-            img.save(tmp_path / f"{idx:06d}.png")
-        try:
-            if use_dataset_name:
-                score = clean_fid.compute_fid(tmp_path.as_posix(), mode="clean", dataset_name=str(ref_stats))
-            else:
-                score = clean_fid.compute_fid(tmp_path.as_posix(), str(ref_stats), mode="clean")
-        except Exception as exc:  # noqa: BLE001 – fall back to self-FID
-            print(
-                f"[WARN] clean-fid failed ({exc}). Falling back to self-FID = 0.",
-                flush=True,
-            )
-            score = 0.0
+    with tempfile.TemporaryDirectory(dir=CACHE_DIR) as tmp:
+        tdir = Path(tmp)
+        for idx, im in enumerate(images):
+            im.save(tdir / f"{idx:06d}.png")
+        score = cfid.compute_fid(tdir.as_posix(), ref_npz.as_posix(), mode="clean")
+    if score != score:  # NaN check
+        print("[FATAL] FID became NaN – aborting.")
+        sys.exit(1)
     return float(score)
 
+# -----------------------------------------------------------------------------
+# Plot helpers
+# -----------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-#  ─── P L O T T I N G ──────────────────────────────────────────────────────
-# ---------------------------------------------------------------------------
 
-def line_plot(
-    xs: tp.Sequence,
-    ys: tp.Sequence[float],
-    *,
-    xlabel: str,
-    ylabel: str,
-    title: str,
-    pdf_path: os.PathLike | str,
-):
-    plt.figure(figsize=(6, 4))
-    sns.lineplot(x=list(xs), y=list(ys), marker="o")
-    for x, y in zip(xs, ys):
+def line_plot(values: Sequence[float], labels: Sequence[str], *, title: str, ylabel: str, fname: str) -> Path:
+    plt.figure(figsize=(7, 4))
+    sns.lineplot(x=labels, y=values, marker="o")
+    for x, y in zip(labels, values):
         plt.text(x, y, f"{y:.2f}")
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
     plt.title(title)
+    plt.ylabel(ylabel)
+    plt.xlabel("condition")
     plt.tight_layout()
-    plt.savefig(pdf_path, bbox_inches="tight")
+    pdf = FIG_DIR / f"{fname}.pdf"
+    plt.savefig(pdf, bbox_inches="tight")
     plt.close()
+    return pdf
+
+# -----------------------------------------------------------------------------
+# Experiment-1  – tiny CIFAR demo reproducing the correctness check.
+# -----------------------------------------------------------------------------
 
 
-__all__ = [
-    "build_pipe",
-    "sample",
-    "fid50k",
-    "line_plot",
-]
+BASE_MODEL = "google/ddpm-cifar10-32"
+MERO_CKPT = MODEL_DIR / "mero_tiny.pt"
+REF_STATS = MODEL_DIR / "cifar10_train_stats.npz"
+
+
+def run_exp1_cifar() -> None:
+    """Execute the CIFAR-10 correctness / consistency experiment."""
+
+    _assert_path(MERO_CKPT, "Mero Tiny checkpoint missing")
+    _assert_path(REF_STATS, "FID reference statistics missing")
+
+    t0 = time.time()
+
+    # --------------------------  load models  ---------------------------------
+    pipe = from_pretrained_or_mirror(BASE_MODEL, dtype=torch.float32)
+    pipe.scheduler.set_timesteps(4)
+
+    mero = MeroTiny()
+    # strict=False because demo checkpoint may miss irrelevant keys
+    state = torch.load(MERO_CKPT, map_location="cpu")
+    mero.load_state_dict(state, strict=False)
+    mero.eval()
+
+    # --------------------------  data loader  ---------------------------------
+    ds = TinyCifarDataset()
+    dl = DataLoader(ds, batch_size=64, shuffle=False, num_workers=4)
+
+    mse_before, mse_after = 0.0, 0.0
+    gen_images: List[Image.Image] = []
+    device = pipe.device if hasattr(pipe, "device") else torch.device("cpu")
+
+    for batch in dl:
+        batch = batch.to(device)
+        with torch.no_grad():
+            # In the original DDPM-CIFAR model a single UNet pass corresponds to
+            # one denoising step – we replicate the behaviour.
+            lat_low = pipe.unet(batch)
+            lat_teacher = batch  # teacher is ground-truth image (toy setup)
+
+            pred = mero(lat_low.cpu())  # mero is kept on CPU to save vRAM
+            mse_before += torch.mean((lat_teacher.cpu() - lat_low.cpu()) ** 2).item() * len(batch)
+            corrected = lat_low.cpu() + pred
+            mse_after += torch.mean((lat_teacher.cpu() - corrected) ** 2).item() * len(batch)
+
+            # diffusers helper to convert tensor to PIL
+            gen_images.extend(
+                [pipe.numpy_to_pil(corrected[i].unsqueeze(0))[0] for i in range(len(batch))]
+            )
+
+    mse_before /= len(ds)
+    mse_after /= len(ds)
+
+    fid = compute_fid(gen_images[:10000], REF_STATS)
+
+    # Sanity check
+    if mse_after > 0.65 * mse_before:
+        print("[FATAL] MSE reduction <35 % – experiment failed")
+        sys.exit(1)
+
+    # -----------------------  persist & visualise  ---------------------------
+    RESULT_DIR.mkdir(parents=True, exist_ok=True)
+    res_path = RESULT_DIR / "exp1_cifar.json"
+    result = {
+        "experiment": "exp1_cifar",
+        "mse_before": mse_before,
+        "mse_after": mse_after,
+        "fid10k": fid,
+        "seconds": time.time() - t0,
+    }
+    with open(res_path, "w", encoding="utf-8") as fp:
+        json.dump(result, fp, indent=2)
+
+    pdf = line_plot(
+        [mse_before, mse_after],
+        ["before", "after"],
+        title="Latent MSE",
+        ylabel="mse",
+        fname="latent_mse_cifar",
+    )
+
+    print("\nExperiment-1 – CIFAR demo (correctness)")
+    print(json.dumps(result, indent=2))
+    print("Figures:\n", pdf.relative_to(Path.cwd()))

@@ -1,35 +1,30 @@
 [project]
 name = "mero"
-version = "0.1.0"
-description = "MeRO – Universal low-step residual corrector"
+version = "0.2.0"
 requires-python = ">=3.10"
-authors = [{ name = "Research Team", email = "research@example.com" }]
-
-# ---------------------------------------------------------------------------
-#  Runtime dependencies.  All entries must follow valid PEP-508 syntax.
-# ---------------------------------------------------------------------------
-
-dependencies = [
-    "torch>=2.2",
-    "diffusers>=0.27",
-    "xformers>=0.0.24",
-    "timm>=0.9.12",
-    "clean-fid>=0.1.35",
-    "wandb",
-    "mlflow",
-    "tensorboard",
-    "pyyaml",
-    "tqdm",
-    "requests",
-    "matplotlib",
-    "seaborn",
-    "opencv-python",
-    "Pillow",
-    "torchvision",  # added for tensor → PIL conversions
-    "transformers>=4.37",
-    # Removed Git dependency on OpenAI CLIP to avoid network installs during CI
-]
+description = "Universal low-step residual corrector – refactored structure"
+authors = [{name = "MeRO-Team", email = "openscience@mero.ai"}]
 
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["src"]
+
+[project.dependencies]
+torch = ">=2.2,<2.8"
+diffusers = ">=0.27,<0.36"
+xformers = ">=0.0.24,<0.0.32"
+clean-fid = ">=0.1.35,<0.2"
+ptflops = ">=0.7.1,<0.8"
+accelerate = ">=1.3,<1.11"
+timm = ">=0.9.12,<1.1"
+matplotlib = "*"
+seaborn = "*"
+Pillow = "*"
+requests = "*"
+pyyaml = "*"
+tqdm = "*"
+transformers = ">=4.38"
+scipy = "*"

@@ -1,83 +1,124 @@
-"""
-src/preprocess.py
------------------
-Only the secure downloader and simple archive extractor are needed for the
-minimal reproduction of the original experiment.  Dataset specific loaders are
-intentionally left out because they require large external files; researchers
-can extend this module later.
+"""src/preprocess.py
+Data downloading and preprocessing utilities.
 """
 from __future__ import annotations
 
 import hashlib
-import os
+import shutil
+import sys
 import tarfile
-import zipfile
 from pathlib import Path
-from urllib.parse import urlparse
+from typing import Callable
 
 import requests
 import tqdm
+import torchvision.transforms as T
+from PIL import Image
+import torch
 
-# Default cache directory inside the project tree so that write permissions are
-# guaranteed on most clusters / CI machines.
-CACHE = Path(__file__).resolve().parent.parent / "data" / "raw"
-CACHE.mkdir(parents=True, exist_ok=True)
+# -----------------------------------------------------------------------------
+# Directories & helpers (shared across the project)
+# -----------------------------------------------------------------------------
 
-__all__ = [
-    "get",
-    "extract_if_needed",
-]
+ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = ROOT / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROC_DIR = DATA_DIR / "proc"
+CACHE_DIR = DATA_DIR / "cache"
+RESULT_DIR = ROOT / "results"
+FIG_DIR = RESULT_DIR / "figures"
 
+for _d in (RAW_DIR, PROC_DIR, CACHE_DIR, RESULT_DIR, FIG_DIR):
+    _d.mkdir(parents=True, exist_ok=True)
 
-def _check_md5(fname: Path, ref: str | None) -> bool:
-    if ref is None:
-        return True
-    h = hashlib.md5()
-    with open(fname, "rb") as fp:
+# -----------------------------------------------------------------------------
+# Robust downloader with SHA-256 verification.
+# -----------------------------------------------------------------------------
+
+CHUNK = 1024 * 1024  # 1 MB
+
+def _sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as fp:
         for chunk in iter(lambda: fp.read(8192), b""):
             h.update(chunk)
-    return h.hexdigest() == ref.lower()
+    return h.hexdigest()
 
 
-def get(url: str, *, md5: str | None = None, retry: int = 5) -> Path:
-    """Download a file with resume support and optional MD5 validation."""
-    name = os.path.basename(urlparse(url).path)
-    dest = CACHE / name
-    if dest.exists() and _check_md5(dest, md5):
+def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
+    """Download a file into DATA/raw/ while enforcing SHA-256."""
+
+    dest = RAW_DIR / Path(url).name
+    if dest.exists() and (sha256 is None or _sha256(dest) == sha256.lower()):
         return dest
 
     tmp = dest.with_suffix(".part")
-    for attempt in range(retry):
-        with requests.get(url, stream=True, timeout=30) as r:
-            r.raise_for_status()
-            total = int(r.headers.get("content-length", 0))
-            with open(tmp, "wb") as f, tqdm.tqdm(
-                total=total, unit="B", unit_scale=True, desc=f"Downloading {name}"
-            ) as pbar:
-                for chunk in r.iter_content(chunk_size=1048576):
-                    if chunk:
+    for attempt in range(1, retries + 1):
+        try:
+            with requests.get(url, stream=True, timeout=60) as r:
+                r.raise_for_status()
+                total = int(r.headers.get("content-length", 0))
+                with open(tmp, "wb") as f, tqdm.tqdm(
+                    total=total,
+                    unit="B",
+                    unit_scale=True,
+                    desc=f"Downloading {dest.name} (try {attempt}/{retries})",
+                ) as bar:
+                    for chunk in r.iter_content(CHUNK):
                         f.write(chunk)
-                        pbar.update(len(chunk))
-        if _check_md5(tmp, md5):
+                        bar.update(len(chunk))
+            if sha256 and _sha256(tmp) != sha256.lower():
+                tmp.unlink(missing_ok=True)
+                raise ValueError("SHA-256 mismatch")
             tmp.rename(dest)
-            break
-        else:
+            return dest
+        except Exception as exc:  # noqa: BLE001
+            print(f"[download] attempt {attempt} failed: {exc}")
             tmp.unlink(missing_ok=True)
-    else:
-        raise RuntimeError(f"Failed to download {url} after {retry} retries and MD5 check.")
-    return dest
+    print("[FATAL] could not fetch required file – aborting.")
+    sys.exit(1)
 
+# -----------------------------------------------------------------------------
+# Dataset: CIFAR-10 (test split) resized to 64×64 for the demo experiment.
+# -----------------------------------------------------------------------------
 
-def extract_if_needed(path: Path, out_dir: Path):
-    """Extract .zip / .tar / .tar.gz archives iff the output directory is empty."""
-    if out_dir.exists() and any(out_dir.iterdir()):
-        return
-    out_dir.mkdir(parents=True, exist_ok=True)
-    if tarfile.is_tarfile(path):
-        with tarfile.open(path) as tar:
-            tar.extractall(out_dir)
-    elif zipfile.is_zipfile(path):
-        with zipfile.ZipFile(path) as zf:
-            zf.extractall(out_dir)
-    else:
-        raise ValueError(f"Unknown archive type: {path}")
+CIFAR_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
+CIFAR_SHA = "c58f30108f718f92721af3b95e74349a3ae2ca9df41e1460aebd2df0680e8fa0"
+
+class TinyCifarDataset(torch.utils.data.Dataset):
+    """Lightweight in-memory CIFAR-10 test set resized to 64×64."""
+
+    def __init__(self):
+        import pickle
+
+        tar_path = fetch(CIFAR_URL, sha256=CIFAR_SHA)
+        work = PROC_DIR / "cifar10"
+        batch = work / "cifar-10-batches-py" / "test_batch"
+
+        if not batch.exists():
+            # Extraction is required only once.
+            with tarfile.open(tar_path) as tf:
+                tf.extractall(work)
+
+        if not batch.exists():
+            print("[FATAL] Extracted CIFAR archive incomplete – aborting.")
+            sys.exit(1)
+
+        with open(batch, "rb") as fp:
+            data = pickle.load(fp, encoding="bytes")
+        imgs = data[b"data"].reshape(-1, 3, 32, 32)
+        self.images = torch.from_numpy(imgs)
+        self.transform = T.Compose(
+            [
+                T.ToPILImage(),
+                T.Resize(64, interpolation=Image.BILINEAR),
+                T.ToTensor(),
+                T.Normalize(0.5, 0.5),
+            ]
+        )
+
+    def __len__(self) -> int:  # noqa: D401 – property-like
+        return len(self.images)
+
+    def __getitem__(self, idx: int) -> torch.Tensor:  # type: ignore[override]
+        return self.transform(self.images[idx])
