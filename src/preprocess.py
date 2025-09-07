@@ -2,11 +2,13 @@ from __future__ import annotations
 
 """src/preprocess.py
 Data downloading and preprocessing utilities.
-This revision updates the research-artefact locations in accordance with the
-current task instructions:
-    • JSON artefacts are written to .research/iteration54/
-    • Figure / image artefacts are written to .research/iteration54/images
-The functional logic of the original file is untouched.
+This revision updates the research-artefact locations to **iteration55** as
+required by the task specification:
+    • JSON artefacts → `.research/iteration55/`
+    • Figure / image artefacts → `.research/iteration55/images/`
+The functional logic of the module is unchanged apart from resizing CIFAR-10 to
+32×32 (instead of the previous 64×64) so that it matches the input resolution of
+`google/ddpm-cifar10-32` used in the evaluation script.
 """
 
 import hashlib
@@ -28,12 +30,12 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Task-mandated research artefact directories  (iteration **54**)
-RESEARCH_DIR = ROOT / ".research" / "iteration54"
-RESULT_DIR = RESEARCH_DIR                    # JSON files go directly here
-FIG_DIR = RESEARCH_DIR / "images"           # images / figures
+# Task-mandated research artefact directories (iteration **55**)
+RESEARCH_DIR = ROOT / ".research" / "iteration55"
+RESULT_DIR = RESEARCH_DIR                   # JSON files go directly here
+FIG_DIR = RESEARCH_DIR / "images"          # images / figures
 
-# Internal data/cache locations (unchanged)
+# Internal data/cache locations
 DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 PROC_DIR = DATA_DIR / "proc"
@@ -91,7 +93,7 @@ def fetch(url: str, *, sha256: str | None = None, retries: int = 4) -> Path:
     sys.exit(1)
 
 # -----------------------------------------------------------------------------
-# Dataset: CIFAR-10 (test split) resized to 64×64 for the demo experiment.
+# Dataset: CIFAR-10 (test split) resized to 32 × 32 for the demo experiment.
 # -----------------------------------------------------------------------------
 
 CIFAR_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
@@ -99,7 +101,7 @@ CIFAR_SHA = "c58f30108f718f92721af3b95e74349a3ae2ca9df41e1460aebd2df0680e8fa0"
 
 
 class TinyCifarDataset(torch.utils.data.Dataset):
-    """Lightweight in-memory CIFAR-10 *test* set resized to 64×64 pixels."""
+    """Lightweight in-memory CIFAR-10 *test* set resized to 32 × 32 pixels."""
 
     def __init__(self):
         import pickle
@@ -124,7 +126,7 @@ class TinyCifarDataset(torch.utils.data.Dataset):
         self.transform = T.Compose(
             [
                 T.ToPILImage(),
-                T.Resize(64, interpolation=Image.BILINEAR),
+                T.Resize(32, interpolation=Image.BILINEAR),
                 T.ToTensor(),
                 T.Normalize(0.5, 0.5),
             ]
