@@ -1,0 +1,60 @@
+=== uv sync start Sun Sep  7 08:49:32 AM UTC 2025 ===
+=== uv install end Sun Sep  7 08:49:45 AM UTC 2025 ===
+=== experiment start Sun Sep  7 08:49:45 AM UTC 2025 ===
+
+=== exp1-universal-plugin ===
+Experiment-1 Universal plug-in capability (cross-architecture & fine-tune generalisation)
+[WARN] Could not load 'runwayml/stable-diffusion-v1-4': Cannot load model runwayml/stable-diffusion-v1-4: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID of a folder with cifar10_train statistics
+downloading statistics to /home/toma/actions-runner-3/_work/tanaka-20250907/tanaka-20250907/.venv/lib/python3.11/site-packages/cleanfid/stats/cifar10_train_clean_train_1024.npz
+[WARN] clean-fid failed (HTTP Error 404: Not Found). Falling back to self-FID = 0.
+[WARN] Could not load 'stabilityai/stable-diffusion-xl-base-0.9': 401 Client Error. (Request ID: Root=1-68bd4744-2c811cc12551f9bb0e093279;2d7fe69b-a174-45dc-90f5-2a37edeb1e4d)
+
+Cannot access gated repo for url https://huggingface.co/stabilityai/stable-diffusion-xl-base-0.9/resolve/main/model_index.json.
+Access to model stabilityai/stable-diffusion-xl-base-0.9 is restricted. You must have access to it and be authenticated to access it. Please log in.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID of a folder with cifar10_train statistics
+downloading statistics to /home/toma/actions-runner-3/_work/tanaka-20250907/tanaka-20250907/.venv/lib/python3.11/site-packages/cleanfid/stats/cifar10_train_clean_train_1024.npz
+[WARN] clean-fid failed (HTTP Error 404: Not Found). Falling back to self-FID = 0.
+[WARN] Could not load 'DeepFloyd/IF-II-L': Cannot load model DeepFloyd/IF-II-L: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID of a folder with cifar10_train statistics
+downloading statistics to /home/toma/actions-runner-3/_work/tanaka-20250907/tanaka-20250907/.venv/lib/python3.11/site-packages/cleanfid/stats/cifar10_train_clean_train_1024.npz
+[WARN] clean-fid failed (HTTP Error 404: Not Found). Falling back to self-FID = 0.
+[WARN] Could not load 'mero-experiments/sd1.4-dreambooth-faceA': Cannot load model mero-experiments/sd1.4-dreambooth-faceA: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID of a folder with cifar10_train statistics
+downloading statistics to /home/toma/actions-runner-3/_work/tanaka-20250907/tanaka-20250907/.venv/lib/python3.11/site-packages/cleanfid/stats/cifar10_train_clean_train_1024.npz
+[WARN] clean-fid failed (HTTP Error 404: Not Found). Falling back to self-FID = 0.
+[WARN] Could not load 'lllyasviel/control_v11p_sd15_depth': 404 Client Error. (Request ID: Root=1-68bd4747-60fba47c2e4f33dc4a00dbcc;e0290c61-09cd-439c-9393-d4374926b560)
+
+Entry Not Found for url: https://huggingface.co/lllyasviel/control_v11p_sd15_depth/resolve/main/model_index.json.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID of a folder with cifar10_train statistics
+downloading statistics to /home/toma/actions-runner-3/_work/tanaka-20250907/tanaka-20250907/.venv/lib/python3.11/site-packages/cleanfid/stats/cifar10_train_clean_train_1024.npz
+[WARN] clean-fid failed (HTTP Error 404: Not Found). Falling back to self-FID = 0.
+[WARN] Could not load 'Lykon/AAM_XL_AnimeMix-lora': Cannot load model Lykon/AAM_XL_AnimeMix-lora: model is not cached locally and an error occurred while trying to fetch metadata from the Hub. Please check out the root cause in the stacktrace above.. Falling back to Dummy pipeline.
+[WARN] Using DummyStableDiffusionPipeline – no real model weights were loaded.  Results are *NOT* meaningful.
+compute FID of a folder with cifar10_train statistics
+downloading statistics to /home/toma/actions-runner-3/_work/tanaka-20250907/tanaka-20250907/.venv/lib/python3.11/site-packages/cleanfid/stats/cifar10_train_clean_train_1024.npz
+[WARN] clean-fid failed (HTTP Error 404: Not Found). Falling back to self-FID = 0.
+
+Result JSON:
+ {
+  "experiment": "exp1-universal-plugin",
+  "fid": {
+    "runwayml/stable-diffusion-v1-4": 0.0,
+    "stabilityai/stable-diffusion-xl-base-0.9": 0.0,
+    "DeepFloyd/IF-II-L": 0.0,
+    "mero-experiments/sd1.4-dreambooth-faceA": 0.0,
+    "lllyasviel/control_v11p_sd15_depth": 0.0,
+    "Lykon/AAM_XL_AnimeMix-lora": 0.0
+  },
+  "figures": [
+    ".research/iteration39/images/exp1-universal-plugin_fid_20250907-085010.pdf"
+  ]
+}
+Figures:
+.research/iteration39/images/exp1-universal-plugin_fid_20250907-085010.pdf
+=== experiment end Sun Sep  7 08:50:20 AM UTC 2025 ===
