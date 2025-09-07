@@ -1,0 +1,8 @@
+{
+  "experiment": "exp1_cifar",
+  "mse_before": 0.00965719229578972,
+  "mse_after": 0.0,
+  "fid10k": null,
+  "seconds": 18.04508638381958,
+  "mero_ckpt": false
+}

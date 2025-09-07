@@ -1,0 +1,76 @@
+Using CPython 3.11.13
+Creating virtual environment at: .venv
+Resolved 70 packages in 230ms
+   Building mero @ file:///home/toma/actions-runner-2/_work/tanaka-20250907/tanaka-20250907
+      Built mero @ file:///home/toma/actions-runner-2/_work/tanaka-20250907/tanaka-20250907
+Prepared 1 package in 1.34s
+Installed 65 packages in 4.64s
+ + accelerate==1.10.1
+ + certifi==2025.8.3
+ + charset-normalizer==3.4.3
+ + clean-fid==0.1.35
+ + contourpy==1.3.3
+ + cycler==0.12.1
+ + diffusers==0.35.1
+ + filelock==3.19.1
+ + fonttools==4.59.2
+ + fsspec==2025.9.0
+ + hf-xet==1.1.9
+ + huggingface-hub==0.34.4
+ + idna==3.10
+ + importlib-metadata==8.7.0
+ + jinja2==3.1.6
+ + kiwisolver==1.4.9
+ + markupsafe==3.0.2
+ + matplotlib==3.10.6
+ + mero==0.2.0 (from file:///home/toma/actions-runner-2/_work/tanaka-20250907/tanaka-20250907)
+ + mpmath==1.3.0
+ + networkx==3.5
+ + numpy==2.3.2
+ + nvidia-cublas-cu12==12.6.4.1
+ + nvidia-cuda-cupti-cu12==12.6.80
+ + nvidia-cuda-nvrtc-cu12==12.6.77
+ + nvidia-cuda-runtime-cu12==12.6.77
+ + nvidia-cudnn-cu12==9.5.1.17
+ + nvidia-cufft-cu12==11.3.0.4
+ + nvidia-cufile-cu12==1.11.1.6
+ + nvidia-curand-cu12==10.3.7.77
+ + nvidia-cusolver-cu12==11.7.1.2
+ + nvidia-cusparse-cu12==12.5.4.2
+ + nvidia-cusparselt-cu12==0.6.3
+ + nvidia-nccl-cu12==2.26.2
+ + nvidia-nvjitlink-cu12==12.6.85
+ + nvidia-nvtx-cu12==12.6.77
+ + packaging==25.0
+ + pandas==2.3.2
+ + pillow==11.3.0
+ + psutil==7.0.0
+ + ptflops==0.7.5
+ + pyparsing==3.2.3
+ + python-dateutil==2.9.0.post0
+ + pytz==2025.2
+ + pyyaml==6.0.2
+ + regex==2025.9.1
+ + requests==2.32.5
+ + safetensors==0.6.2
+ + scipy==1.16.1
+ + seaborn==0.13.2
+ + setuptools==80.9.0
+ + six==1.17.0
+ + sympy==1.14.0
+ + timm==1.0.19
+ + tokenizers==0.22.0
+ + torch==2.7.1
+ + torchvision==0.22.1
+ + tqdm==4.67.1
+ + transformers==4.56.1
+ + triton==3.3.1
+ + typing-extensions==4.15.0
+ + tzdata==2025.2
+ + urllib3==2.5.0
+ + xformers==0.0.31.post1
+ + zipp==3.23.0
+Loading pipeline components...:   0%|          | 0/2 [00:00<?, ?it/s]An error occurred while trying to fetch /home/toma/.cache/huggingface/hub/models--google--ddpm-cifar10-32/snapshots/267b167dc01f0e4e61923ea244e8b988f84deb80: Error no file named diffusion_pytorch_model.safetensors found in directory /home/toma/.cache/huggingface/hub/models--google--ddpm-cifar10-32/snapshots/267b167dc01f0e4e61923ea244e8b988f84deb80.
+Defaulting to unsafe serialization. Pass `allow_pickle=False` to raise an error instead.
+Loading pipeline components...: 100%|██████████| 2/2 [00:00<00:00,  6.60it/s]Loading pipeline components...: 100%|██████████| 2/2 [00:00<00:00,  6.60it/s]
+Downloading cifar-10-python.tar.gz (try 1/4):   0%|          | 0.00/170M [00:00<?, ?B/s]Downloading cifar-10-python.tar.gz (try 1/4):   1%|          | 1.05M/170M [00:01<02:44, 1.03MB/s]Downloading cifar-10-python.tar.gz (try 1/4):   1%|          | 2.10M/170M [00:01<01:23, 2.02MB/s]Downloading cifar-10-python.tar.gz (try 1/4):   2%|▏         | 4.19M/170M [00:01<00:39, 4.25MB/s]Downloading cifar-10-python.tar.gz (try 1/4):   4%|▍         | 7.34M/170M [00:01<00:21, 7.59MB/s]Downloading cifar-10-python.tar.gz (try 1/4):   6%|▌         | 10.5M/170M [00:01<00:15, 10.3MB/s]Downloading cifar-10-python.tar.gz (try 1/4):   8%|▊         | 13.6M/170M [00:01<00:12, 12.5MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  10%|▉         | 16.8M/170M [00:02<00:10, 14.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  12%|█▏        | 19.9M/170M [00:02<00:09, 15.3MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  14%|█▎        | 23.1M/170M [00:02<00:09, 16.2MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  15%|█▌        | 26.2M/170M [00:02<00:08, 16.9MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  17%|█▋        | 29.4M/170M [00:02<00:08, 17.3MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  19%|█▉        | 32.5M/170M [00:02<00:08, 16.9MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  21%|██        | 35.7M/170M [00:03<00:07, 17.2MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  23%|██▎       | 38.8M/170M [00:03<00:07, 17.5MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  25%|██▍       | 41.9M/170M [00:03<00:07, 17.7MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  26%|██▋       | 45.1M/170M [00:03<00:07, 17.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  28%|██▊       | 48.2M/170M [00:03<00:06, 17.9MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  30%|███       | 51.4M/170M [00:03<00:06, 18.0MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  32%|███▏      | 54.5M/170M [00:04<00:06, 18.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  34%|███▍      | 57.7M/170M [00:04<00:06, 18.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  36%|███▌      | 60.8M/170M [00:04<00:06, 18.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  38%|███▊      | 64.0M/170M [00:04<00:05, 18.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  39%|███▉      | 67.1M/170M [00:04<00:05, 18.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  41%|████      | 70.3M/170M [00:04<00:05, 18.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  43%|████▎     | 73.4M/170M [00:05<00:05, 18.2MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  45%|████▍     | 76.5M/170M [00:05<00:05, 18.2MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  46%|████▌     | 78.6M/170M [00:05<00:05, 16.9MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  48%|████▊     | 81.8M/170M [00:05<00:05, 17.4MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  50%|████▉     | 84.9M/170M [00:05<00:04, 17.7MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  52%|█████▏    | 88.1M/170M [00:06<00:04, 17.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  54%|█████▎    | 91.2M/170M [00:06<00:04, 17.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  55%|█████▌    | 94.4M/170M [00:06<00:04, 17.9MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  57%|█████▋    | 97.5M/170M [00:06<00:04, 18.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  59%|█████▉    | 101M/170M [00:06<00:03, 18.1MB/s] Downloading cifar-10-python.tar.gz (try 1/4):  61%|██████    | 104M/170M [00:06<00:03, 17.6MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  63%|██████▎   | 107M/170M [00:07<00:03, 17.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  65%|██████▍   | 110M/170M [00:07<00:03, 17.9MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  66%|██████▋   | 113M/170M [00:07<00:03, 17.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  68%|██████▊   | 116M/170M [00:07<00:03, 17.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  70%|███████   | 120M/170M [00:07<00:02, 17.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  72%|███████▏  | 123M/170M [00:07<00:02, 17.7MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  73%|███████▎  | 125M/170M [00:08<00:02, 16.4MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  75%|███████▌  | 128M/170M [00:08<00:02, 16.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  77%|███████▋  | 131M/170M [00:08<00:02, 17.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  79%|███████▊  | 134M/170M [00:08<00:02, 17.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  81%|████████  | 137M/170M [00:08<00:01, 17.2MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  82%|████████▏ | 141M/170M [00:09<00:01, 17.2MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  84%|████████▍ | 144M/170M [00:09<00:01, 17.2MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  85%|████████▌ | 146M/170M [00:09<00:01, 16.3MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  87%|████████▋ | 149M/170M [00:09<00:01, 16.6MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  89%|████████▉ | 152M/170M [00:09<00:01, 16.7MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  91%|█████████ | 155M/170M [00:09<00:00, 16.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  93%|█████████▎| 158M/170M [00:10<00:00, 16.9MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  94%|█████████▍| 160M/170M [00:10<00:00, 16.3MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  96%|█████████▌| 164M/170M [00:10<00:00, 16.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4):  98%|█████████▊| 167M/170M [00:10<00:00, 16.8MB/s]Downloading cifar-10-python.tar.gz (try 1/4): 100%|█████████▉| 170M/170M [00:10<00:00, 17.1MB/s]Downloading cifar-10-python.tar.gz (try 1/4): 100%|██████████| 170M/170M [00:10<00:00, 15.8MB/s]
