@@ -1,0 +1,4 @@
+=== uv sync start Sun Sep  7 09:39:46 AM UTC 2025 ===
+=== uv install end Sun Sep  7 09:39:51 AM UTC 2025 ===
+=== experiment start Sun Sep  7 09:39:51 AM UTC 2025 ===
+[WARN] MeRO Tiny checkpoint missing – oracle fallback engaged – expected at data/models/mero_tiny.pt. Skipping …
