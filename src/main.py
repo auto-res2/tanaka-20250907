@@ -3,9 +3,9 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Updated for iteration-24 research artefact layout (mandatory).
-All JSON results are now stored under `.research/iteration24/` and
-figures under `.research/iteration24/images/` as required.
+Updated for iteration-25 research artefact layout (mandatory).
+All JSON results are now stored under `.research/iteration25/` and
+figures under `.research/iteration25/images/` as required.
 """
 
 import datetime
@@ -35,9 +35,14 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
 # ---------------------------------------------------------------------------
-#  Mandatory research directory layout (iteration-24) ------------------------
+#  Mandatory research directory layout (iteration-25) ------------------------
 # ---------------------------------------------------------------------------
-RESULT_DIR = ROOT / ".research" / "iteration24"
+# NOTE: The evaluation harness now expects all artefacts to be saved under
+#       `.research/iteration25/` (JSON) and `.research/iteration25/images/`
+#       (figures).  The paths below have therefore been updated from the
+#       previous iteration-24 convention.
+# ---------------------------------------------------------------------------
+RESULT_DIR = ROOT / ".research" / "iteration25"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
