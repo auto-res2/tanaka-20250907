@@ -1,0 +1,4 @@
+=== uv sync start Sun Sep  7 09:30:19 AM UTC 2025 ===
+=== uv install end Sun Sep  7 09:31:20 AM UTC 2025 ===
+=== experiment start Sun Sep  7 09:31:20 AM UTC 2025 ===
+[FATAL] Mero Tiny checkpoint missing – expected at data/models/mero_tiny.pt
