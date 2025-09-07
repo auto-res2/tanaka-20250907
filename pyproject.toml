@@ -1,1 +1,37 @@
-# Please list the required python packages.
+[project]
+name = "mero"
+version = "0.1.0"
+description = "MeRO – Universal low-step residual corrector"
+requires-python = ">=3.10"
+authors = [{ name = "Research Team", email = "research@example.com" }]
+
+# ---------------------------------------------------------------------------
+#  Runtime dependencies.  Versions follow the ones stated in the header of
+#  the original experimental script.
+# ---------------------------------------------------------------------------
+
+dependencies = [
+    "torch>=2.2",
+    "diffusers>=0.27",
+    "xformers>=0.0.24",
+    "timm>=0.9.12",
+    "clean-fid>=0.1.35",
+    "wandb",
+    "mlflow",
+    "tensorboard",
+    "pyyaml",
+    "tqdm",
+    "requests",
+    "matplotlib",
+    "seaborn",
+    "opencv-python",
+    "Pillow",
+    "transformers>=4.37",
+    # OpenAI CLIP is installed directly from GitHub until a PyPI release is
+    # provided.  This avoids circular dependencies with diffusers/transformers.
+    "git+https://github.com/openai/CLIP.git#egg=clip",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

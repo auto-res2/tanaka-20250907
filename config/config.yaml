@@ -1,0 +1,89 @@
+experiments:
+- name: exp1-universal-plugin
+  description: Experiment-1 Universal plug-in capability (cross-architecture & fine-tune generalisation)
+  models:
+  - runwayml/stable-diffusion-v1-4
+  - stabilityai/stable-diffusion-xl-base-0.9
+  - DeepFloyd/IF-II-L
+  - mero-experiments/sd1.4-dreambooth-faceA
+  - lllyasviel/control_v11p_sd15_depth
+  - Lykon/AAM_XL_AnimeMix-lora
+  sampler_steps:
+  - 4
+  - 8
+  prompts_source: coco+laion
+- name: exp2-quality-vs-speed
+  description: Experiment-2 Quality vs speed frontier ≤4 steps (SD-v1.5)
+  models:
+  - runwayml/stable-diffusion-v1-5
+  sampler_steps:
+  - 1
+  - 2
+  - 3
+  - 4
+  prompts_source: coco
+  extra:
+    samplers:
+    - DDIM
+    - DPM
+    - AMED
+    - MMM
+    - PPD
+    - MeRO
+    reference_steps: 50
+- name: exp3-robustness-ablation
+  description: Experiment-3 Ablation & robustness (SD-v1.5, N=2)
+  models:
+  - runwayml/stable-diffusion-v1-5
+  sampler_steps:
+  - 2
+  prompts_source: coco
+  extra:
+    ablations:
+    - full
+    - no_vel
+    - no_clip
+    - single_model
+    - unet_backbone
+train:
+  total_steps: 200000
+  batch_size: 256
+  precision: fp16
+  save_every: 5000
+  eval_every: 2000
+  seeds:
+  - 11
+  - 22
+  - 33
+  - 44
+  - 55
+  optim:
+    lr: 0.0003
+    betas:
+    - 0.9
+    - 0.95
+    weight_decay: 0.01
+  loss:
+    gamma: 0.9
+    lambda_v: 0.1
+    lambda_p: 0.5
+    lambda_c: 5.0
+data:
+  coco_val:
+    url: http://images.cocodataset.org/zips/val2014.zip
+    md5: c3d5c3f3...
+  coco_ann:
+    url: http://images.cocodataset.org/annotations/annotations_trainval2014.zip
+    md5: f4bbac1...
+  laion10k:
+    url: https://github.com/robillardstudio/laion2B-en-aesthetic-minified/archive/refs/heads/main.zip
+    md5: null
+  imagenet_val:
+    url: https://storage.googleapis.com/openimages/2016_08/train/train_00.tar.gz
+    md5: null
+  nih_chestx:
+    url: https://nihcc.app.box.com/v/ChestXray-NIHCC
+    md5: null
+  wikiart:
+    url: https://huggingface.co/datasets/Dant33/WikiArt-81K-BLIP_2-768x768/resolve/main/data.tar
+    md5: null
