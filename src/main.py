@@ -3,10 +3,10 @@ from __future__ import annotations
 """
 src/main.py
 -----------
-Updated research artefact paths to comply with **iteration-46** mandatory
-layout (replacing the previous iteration-45 layout).  All JSON result files
-are now stored under `.research/iteration46/` and figures under
-`.research/iteration46/images/`.
+Updated research artefact paths to comply with **iteration-47** mandatory
+layout (replacing the previous iteration-46 layout).  All JSON result files
+are now stored under `.research/iteration47/` and figures under
+`.research/iteration47/images/` as required by the evaluation harness.
 """
 
 import datetime
@@ -36,9 +36,9 @@ with open(CONFIG_FILE, "r", encoding="utf-8") as fp:
     CFG = yaml.safe_load(fp)
 
 # ---------------------------------------------------------------------------
-#  Mandatory research directory layout (iteration-46) -----------------------
+#  Mandatory research directory layout (iteration-47) -----------------------
 # ---------------------------------------------------------------------------
-RESULT_DIR = ROOT / ".research" / "iteration46"
+RESULT_DIR = ROOT / ".research" / "iteration47"
 IMAGE_DIR = RESULT_DIR / "images"
 RESULT_DIR.mkdir(parents=True, exist_ok=True)
 IMAGE_DIR.mkdir(parents=True, exist_ok=True)
